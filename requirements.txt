@@ -1,0 +1,11 @@
+python==3.10.14
+tensorflow==2.15.0
+keras-ocr==0.9.3
+flask[async] 
+Flask-Session
+asyncio
+EasyOCR==1.7.1
+torch
+pillow
+numpy
+requests

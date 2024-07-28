@@ -1,0 +1,4 @@
+__pycache__
+static/video/* 
+flask_session
+model
