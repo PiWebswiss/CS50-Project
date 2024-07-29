@@ -22,27 +22,42 @@ const fileInput = document.getElementById("fileInput");
 const dropArea = document.getElementById('drop-area');
 const userFeedBack = document.getElementById("userFeedBack");
 const animatedText = document.getElementById("animatedText");
+/* to do btn copy text */
 
 /* Text animation code modified from GPT4 */
-function typeText(text, element) {
+function typeText(text, element, maxLength=200) {
     // Clear existing text 
     element.textContent = "";
     let index = 0;
-    // Add the cursor
-    element.classList.add("cursor");
+
+    // Create the cursor element 
+    const cursorSpan = document.createElement("span");
+    cursorSpan.classList.add("cursor");
+    cursorSpan.textContent = "|";
+    element.appendChild(cursorSpan);
+
     function type() {
-        if (index < text.length) {
-            element.textContent += text.charAt(index);
+        if (index < text.length && index < maxLength) {
+            // Update the text content with the next character
+            element.textContent = text.substring(0, index + 1);
+            // Re-append the cursor to ensure it stays at end
+            element.appendChild(cursorSpan);
             index++;
             setTimeout(type, 200); // Adjust typing seed as needed
         }
         else {
-            // Remove the cursor
-            element.classList.remove("cursor");
+            if (index >= maxLength) {
+                element.textContent =  text.substring(0, maxLength) + "...";
+            }   
+            // Remove the cursor after typing
+            cursorSpan.remove();   
         }
+        
     }
     type();
 }
+
+typeText("Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.", animatedText)
 
 // Function to hide the user feedback message
 function hidFeedback(time) {

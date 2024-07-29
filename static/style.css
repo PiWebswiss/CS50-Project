@@ -67,7 +67,7 @@ body {
 
 .center-text {
   text-align: center;
-  color: #4A4A4A 
+  color: #4A4A4A;
 }
 
 .text-big {
@@ -152,19 +152,19 @@ body {
 .custom-feedback-box.success {
   background-color: rgba(94, 224, 107, 0.95);
   color: #155724;
-  border-radius: 1px soldi #c3e6c3;
+  border-radius: 1px sold #c3e6c3;
 }
 
 .custom-feedback-box.error {
   background-color: rgba(248, 215, 218, 0.95);
   color: #721c24;
-  border-radius: 1px soldi #f5c6cb;
+  border-radius: 1px sold #f5c6cb;
 }
 
 .custom-feedback-box.info {
   background-color: rgba(209, 236, 241, 0.95);
   color: #0c5460;
-  border-radius: 1px soldi #bee5be;
+  border-radius: 1px sold #bee5be;
 }
 
 .radio-group {
@@ -175,46 +175,34 @@ body {
 }
 
 .copy-text-box {
+  display: flex;
+  align-items: flex-start;
+  height: 16rem; /* to change !! */
   border: 2px solid black;
-  padding: 7.1rem;
+  padding: 1rem;
   border-radius: 0.5rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.8rem;
+  overflow: hidden;
+  box-sizing: border-box;
+  text-align: left;
 }
 
 
 .animated-text {
   font-size: 1.5rem;
-  white-space: nowrap;
-  display: inline-block;
-  vertical-align: middle;
-  line-height: 1.5rem
+  line-height: 1.5rem;
+  margin: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  position: relative;
+  width: 100%;
 }
 
 .cursor {
-  border-right: 3px solid black;
-  height: 1.5rem;
-  animation: blink-caret 0.75s step-end infinite;
+  animation: blink 1s step-start 0s infinite;
   display: inline-block;
   vertical-align: bottom;
-}
-
-@keyframes blink-caret {
-  from, to {
-    border-color: transparent;
-  }
-  50% {
-    border-color: black;
-  }
-}
-
-@keyframes turnPage {
-  0% {
-    transform: perspective(600px) rotateY(0deg);
-  }
-  100% {
-    transform: perspective(600px) rotateY(-10deg);
-  }
 }
 
 
