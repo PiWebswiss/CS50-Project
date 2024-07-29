@@ -12,7 +12,7 @@ The `ocr_env.yaml` file contains a list of all packages and dependencies.
 
 To recreate the environment:
 
-1. Install Miniconda using the [minimal installer](https://docs.anaconda.com/miniconda/).
+1. Install Miniconda using the [Miniconda installer](https://docs.anaconda.com/miniconda/).
 2. Open the Miniconda Command Line.
 3. Navigate to the directory containing the `ocr_env.yaml` file.
 4. Create the environment from the YAML file:
