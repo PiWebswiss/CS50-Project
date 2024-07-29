@@ -85,11 +85,13 @@
               <p class="file-upload-text">or drag and drop your file here</p>
           </div>
           <!-- Add default lang  -->
-          {% for ocr_model in ocr_models %}
-            <input type="radio" class="radio-btn" name="ocr_model" value="{{ ocr_model }}"
-            {% if ocr_model == "OCR on server" %}checked{% endif %}>
-            {{ ocr_model }}
-          {% endfor %}
+          <div class="radio-group">
+            {% for ocr_model in ocr_models %}
+              <input type="radio" class="radio-btn" name="ocr_model" value="{{ ocr_model }}"
+              {% if ocr_model == "API OCR" %}checked{% endif %}>
+              {{ ocr_model }}
+            {% endfor %}
+          </div>
           <div class="pt-3"></div>
           <button type="submit" class="btn-primary">Submit</button>
         </form>
@@ -97,7 +99,10 @@
       <!-- text in the image -->
       <div class="box">
           <h3>Text</h3>
-          <p class="animated-text" id="animatedText"></p>
+          <div class="copy-text-box">
+            <p class="animated-text" id="animatedText"></p>
+          </div>
+          <button class="btn-primary" id="btnCopy">Copy text</button>
       </div>
     </div>
   </div>

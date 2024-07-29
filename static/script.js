@@ -23,6 +23,26 @@ const dropArea = document.getElementById('drop-area');
 const userFeedBack = document.getElementById("userFeedBack");
 const animatedText = document.getElementById("animatedText");
 
+/* Text animation code modified from GPT4 */
+function typeText(text, element) {
+    // Clear existing text 
+    element.textContent = "";
+    let index = 0;
+    // Add the cursor
+    element.classList.add("cursor");
+    function type() {
+        if (index < text.length) {
+            element.textContent += text.charAt(index);
+            index++;
+            setTimeout(type, 200); // Adjust typing seed as needed
+        }
+        else {
+            // Remove the cursor
+            element.classList.remove("cursor");
+        }
+    }
+    type();
+}
 
 // Function to hide the user feedback message
 function hidFeedback(time) {
@@ -70,7 +90,6 @@ function handleDrag(event) {
         // Retrive files from the event
         const files = event.dataTransfer.files
         handleFileUpload(files);
-        /* to do send image to model in flask */
     }
 }
 
@@ -96,27 +115,8 @@ function setupApplication() {
 }
 setupApplication()
 
-/* Text animation code form GPT4 */
-function typeText(text, element) {
-    let index = 0;
-    // Add the cursor
-    element.classList.add("cursor")
-    function type() {
-        if (index < text.length) {
-            element.textContent += text.charAt(index);
-            index++;
-            setTimeout(type, 200); // Adjust typing seed as needed
-        }
-        else {
-            // Remove the cursor
-            element.classList.remove("cursor")
-        }
-    }
-    type();
-}
-
 // Function to handle file upload
-/* Using AJAX for submiting the form (code from GPT4 modified) */
+/* Using AJAX for submiting the form (code modified from GPT4) */
 async function handleFileUpload(files) {
      // Ensure files is valide
     if (files.length === 0) {
@@ -191,6 +191,8 @@ uploadFile.addEventListener("submit", async (event) => {
     handleFileUpload(files)
 });
 
+
+/* TO DO ADD BTN COPY TEXT */
 
 /* Footer */
 // Create a new Date object

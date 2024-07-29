@@ -21,7 +21,7 @@ app.secret_key = secrets.token_hex(24)
  # To remove !!
 """ Note: I will perform OCR only in English  """ 
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'pdf']
-OCR_MODELS = ["OCR on server", "API OCR"]
+OCR_MODELS = ["OCR with TensorFlow", "API OCR"]
 
 
 # Fontion to read API key from text file
@@ -63,9 +63,9 @@ async def ocr_space_api(file, overlay=False, api_key='helloworld', language='eng
         
         # Error handling
         except httpx.HTTPStatusError as e:
-                # Log detailed error
-                print(f"Request error occurred {e}")
-                return {"error": "An error occurred while processing the image"}
+            # Log detailed error
+            print(f"Request error occurred {e}")
+            return {"error": "An error occurred while processing the image"}
         except httpx.RemoteProtocolError as e:
             print(f"HTTP error occurred: {e}")
             return {"error": "A network error occured. Please try again later."}
