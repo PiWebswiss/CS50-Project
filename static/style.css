@@ -190,7 +190,6 @@ body {
 
 
 .animated-text {
-  font-size: 1.5rem;
   line-height: 1.5rem;
   margin: 0;
   word-break: break-word;
@@ -200,6 +199,7 @@ body {
 }
 
 .cursor {
+  font-size: 1.2rem;
   animation: blink 1s step-start 0s infinite;
   display: inline-block;
   vertical-align: bottom;

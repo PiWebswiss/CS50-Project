@@ -22,10 +22,14 @@ const fileInput = document.getElementById("fileInput");
 const dropArea = document.getElementById('drop-area');
 const userFeedBack = document.getElementById("userFeedBack");
 const animatedText = document.getElementById("animatedText");
-/* to do btn copy text */
+const btnCopy = document.getElementById("btnCopy");
+
+
+// Initialize variable to save the current predicted text
+let saveText;
 
 /* Text animation code modified from GPT4 */
-function typeText(text, element, maxLength=200) {
+function typeText(text, element, maxLength=400) {
     // Clear existing text 
     element.textContent = "";
     let index = 0;
@@ -43,7 +47,7 @@ function typeText(text, element, maxLength=200) {
             // Re-append the cursor to ensure it stays at end
             element.appendChild(cursorSpan);
             index++;
-            setTimeout(type, 200); // Adjust typing seed as needed
+            setTimeout(type, 100); // Adjust typing seed as needed
         }
         else {
             if (index >= maxLength) {
@@ -176,6 +180,7 @@ async function handleFileUpload(files) {
         // Access data
         if ("ocr_result" in result) {
             typeText(result.ocr_result, animatedText);
+            saveText = result.ocr_result;
             showFeedback("Successfully perform OCR.", "success");
            
         }
@@ -204,6 +209,22 @@ uploadFile.addEventListener("submit", async (event) => {
         return;
     }
     handleFileUpload(files)
+});
+
+/* Button to copy text  */
+btnCopy.document.addEventListener("click", () => {
+    if (!saveText) {
+        showFeedback("No text to copy", "info");
+        return;
+    }
+    // Copy text inside the Clipboard
+    navigator.clipboard.writeText(text)
+        .then(() => {
+            showFeedback("Text copied", "info");
+        })
+        .catch(err => {
+            showFeedback("Failed to copy text", "error");
+        });    
 });
 
 
