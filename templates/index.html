@@ -51,7 +51,7 @@
     </div>
 </header>
 <body>
-  <section class="jumbotron text-center">
+  <div class="jumbotron text-center container-section">
     <div class="container pt-5 pb-5">
       <h1 class="jumbotron-heading pb-2">Optical Character Recognition</h1>
       <p class="load text-muted">
@@ -61,13 +61,15 @@
       </p>
       <p>So I tried a different approach where real time OCR was the primary goal.</p>
       <div class="pb-4"></div>
+      <!-- User feedback -->
+      <div class="feedback-box">
+        <p class="custom-feedback-box mb-4 text-center" id="userFeedBack"></p>
+      </div>
+      <div class="pb-4"></div>
     </div>
-  </section>
-
-  <!-- User feedback -->
-  <div class="feedback-box">
-    <p class="custom-feedback-box mb-4 text-center" id="userFeedBack"></p>
   </div>
+
+ 
   
   <!-- use OCR model -->
   <div class="body-color">
@@ -106,6 +108,8 @@
       </div>
     </div>
   </div>
+
+  <!-- To do add a table with the result of ocr and the datatime -->
 
   <br><br><br><br><br><br><br>
   <br><br><br><br><br><br><br><br><br><br><br><br><br>

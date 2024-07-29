@@ -132,9 +132,26 @@ body {
   background-color: #0d6913;
 }
 
+.position-relative {
+  position: relative;
+}
+
+.container-section {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
 .feedback-box {
   display: flex;
   justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
 /* User feedback box */

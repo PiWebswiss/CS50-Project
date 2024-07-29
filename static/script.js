@@ -29,7 +29,7 @@ const btnCopy = document.getElementById("btnCopy");
 let saveText;
 
 /* Text animation code modified from GPT4 */
-function typeText(text, element, maxLength=400) {
+function typeText(text, element, maxLength=300) {
     // Clear existing text 
     element.textContent = "";
     let index = 0;
@@ -55,13 +55,10 @@ function typeText(text, element, maxLength=400) {
             }   
             // Remove the cursor after typing
             cursorSpan.remove();   
-        }
-        
+        }  
     }
     type();
 }
-
-typeText("Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.", animatedText)
 
 // Function to hide the user feedback message
 function hidFeedback(time) {
@@ -182,6 +179,9 @@ async function handleFileUpload(files) {
             typeText(result.ocr_result, animatedText);
             saveText = result.ocr_result;
             showFeedback("Successfully perform OCR.", "success");
+
+        // Clear file input after OCR is done
+        fileInput.value = "";
            
         }
         else if ("erro" in result) {
@@ -212,13 +212,16 @@ uploadFile.addEventListener("submit", async (event) => {
 });
 
 /* Button to copy text  */
-btnCopy.document.addEventListener("click", () => {
+btnCopy.addEventListener("click", () => {
     if (!saveText) {
         showFeedback("No text to copy", "info");
         return;
     }
+    // Replace '\n' by a space
+    const orc_text = saveText.replace("\n", " ");
+    
     // Copy text inside the Clipboard
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(orc_text)
         .then(() => {
             showFeedback("Text copied", "info");
         })
@@ -226,9 +229,6 @@ btnCopy.document.addEventListener("click", () => {
             showFeedback("Failed to copy text", "error");
         });    
 });
-
-
-/* TO DO ADD BTN COPY TEXT */
 
 /* Footer */
 // Create a new Date object
