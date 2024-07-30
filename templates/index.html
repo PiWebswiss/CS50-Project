@@ -68,10 +68,7 @@
       <div class="pb-4"></div>
     </div>
   </div>
-
- 
-  
-  <!-- use OCR model -->
+  <!-- OCR model -->
   <div class="body-color">
     <div class="box-flex">
       <!-- Upload File  uning AJAX-->
@@ -79,7 +76,7 @@
         <h3 class="center-text text-big">Optical Character Recognition</h3>
         <form id="uploadFile" enctype="multipart/form-data">
           <div class="upload-container">
-              <input type="file" id="fileInput" class="file-input" name="file" accept="image/*,video/*,text/*"/>
+              <input type="file" id="fileInput" class="file-input" name="file" accept="image/*"/>
               <label for="fileInput" class="file-label">
                   <i class="fas fa-upload"></i>
                   <span>Click to Upload File</span>
@@ -104,11 +101,36 @@
           <div class="copy-text-box">
             <p id="animatedText" class="animated-text text-muted"></p>
           </div>
-          <button class="btn-primary" id="btnCopy">Copy text</button>
+          <button class="btn-copy" id="btnCopy">Copy text</button>
       </div>
     </div>
-  </div>
-
+  <!-- Table with history -->
+    <div class="container mt-3">
+      <div class="reponsive-table">
+        <table id="dataTable" class="table ">
+          <thead>
+            <tr>
+              <th class="hide-on-small" scope="col">Date and time</th>
+              <th scope="col">Detected Text</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows will be added here -->
+            {% for item in ocr_results %}
+              <tr scop="row">
+                  <td class="hide-on-small">{{ item.datetime }}</td>
+                  <td id="text-{{ loop.index }}" class="truncate_text">{{ item.text }}</td>
+                  <td>
+                    <button id="copy-btn-{{ loop.index }}" data-clipboard-id="text-{{ loop.index }}" class="table-copy-btn">Copy text</button>
+                  </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   <!-- To do add a table with the result of ocr and the datatime -->
 
   <br><br><br><br><br><br><br>

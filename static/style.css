@@ -44,6 +44,15 @@ body {
   text-align: center;
 }
 
+@media (max-width: 600px) {
+  .box-flex{
+    flex-direction: column;
+  }
+  .hide-on-small {
+    display: none;
+  }
+}
+
 .container-drag {
   display: flex;
   justify-content: space-evenly;
@@ -132,6 +141,24 @@ body {
   background-color: #0d6913;
 }
 
+.btn-copy {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  background-color: rgba(18, 33, 120, 0.953);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-copy:hover {
+  background-color: #adadad;
+}
+
+
 .position-relative {
   position: relative;
 }
@@ -195,16 +222,15 @@ body {
   display: flex;
   align-items: flex-start;
   height: 16rem; /* to change !! */
-  border: 2px solid black;
+  border: 2px solid rgb(90, 88, 88);
   padding: 1rem;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(215, 208, 208, 0.027);
   margin-bottom: 1.8rem;
   overflow: hidden;
   box-sizing: border-box;
   text-align: left;
 }
-
 
 .animated-text {
   line-height: 1.5rem;
@@ -220,6 +246,51 @@ body {
   animation: blink 1s step-start 0s infinite;
   display: inline-block;
   vertical-align: bottom;
+}
+
+.table-wrapper {
+  width: 100%;
+  background-color: #fff;
+  padding: 20rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reponsive-table {
+  width: 100%;
+  border-collapse: collapse;
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+.truncate_text {
+  max-width: 10rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.table-copy-btn {
+  display: block;
+  padding: 0.22rem;
+  background-color: rgba(38, 128, 47, 0.953);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.table-copy-btn:hover {
+  background-color: #0b320d;
+}
+
+/* Add border radius to the table */
+.table {
+  border-collapse: separate; 
+  border-spacing: 0; 
+  border-radius: 0.4rem; 
+  overflow: hidden; 
 }
 
 

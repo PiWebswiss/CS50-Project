@@ -23,6 +23,9 @@ const dropArea = document.getElementById('drop-area');
 const userFeedBack = document.getElementById("userFeedBack");
 const animatedText = document.getElementById("animatedText");
 const btnCopy = document.getElementById("btnCopy");
+const tableBtnCopy = document.querySelectorAll(".table-copy-btn");
+
+
 
 
 // Initialize variable to save the current predicted text
@@ -211,24 +214,50 @@ uploadFile.addEventListener("submit", async (event) => {
     handleFileUpload(files)
 });
 
+/* Function to copy text inside the Clipboard  */
+function copyTextClipboard(text) {
+    // Replace '\n' by a space
+    text = text.replace("\n", " ");
+
+    navigator.clipboard.writeText(text)
+    .then(() => {
+        showFeedback("Text copied", "info");
+    })
+    .catch(err => {
+        showFeedback("Failed to copy text", "error");
+    });
+}
+
 /* Button to copy text  */
 btnCopy.addEventListener("click", () => {
     if (!saveText) {
         showFeedback("No text to copy", "info");
         return;
     }
-    // Replace '\n' by a space
-    const orc_text = saveText.replace("\n", " ");
-    
+
     // Copy text inside the Clipboard
-    navigator.clipboard.writeText(orc_text)
-        .then(() => {
-            showFeedback("Text copied", "info");
-        })
-        .catch(err => {
-            showFeedback("Failed to copy text", "error");
-        });    
+    copyTextClipboard(orc_text);
 });
+
+/* Setup all copy button in tha table */
+tableBtnCopy.forEach(button => {
+    // Add click envent to each button
+    button.addEventListener("click", () => {
+        
+        // Get the ID of the text element to copy from the data-clipbord_id attribute
+        const textElementID = button.getAttribute("data-clipboard-id");
+        
+        // Get the text content of the element
+        const textToCopy = document.getElementById(textElementID).textContent;
+
+        // Copy the text to the clipboard
+        copyTextClipboard(textToCopy);
+    });
+});
+
+
+/* TO DO  1. about section for OCR with TensorFlow and API OCR */
+/* And need a way to display text with out releading the page server */
 
 /* Footer */
 // Create a new Date object

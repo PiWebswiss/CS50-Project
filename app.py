@@ -1,27 +1,52 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, make_response, session
 from werkzeug.exceptions import RequestEntityTooLarge
+from flask_session import Session
 import secrets
 import keras_ocr
 from PIL import Image
 import numpy as np
-import requests
 import httpx
-import logging
-import asyncio
-
+import uuid
+from cs50 import SQL
+from datetime import datetime, timezone, timedelta
+import os
 
 # Configure application
 app = Flask(__name__)
 
 # Limation file size to limit denial-of-service (DoS) attacks
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
+
 # Generate secret key with 24-character hexadecimal string
 app.secret_key = secrets.token_hex(24)
 
- # To remove !!
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+
 """ Note: I will perform OCR only in English  """ 
-ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'pdf']
+ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg']
 OCR_MODELS = ["OCR with TensorFlow", "API OCR"]
+
+# Configure CS50 Library to use SQLite database
+database_path = os.path.join("database", "ocr-results.db")
+db = SQL(f"sqlite:///{database_path}") 
+
+# Create table
+db.execute("""
+    CREATE TABLE IF NOT EXISTS history (
+           id INTEGER PRIMARY KEY AUTOINCREMENT,
+           user_id INTEGER NOT NULL,
+           datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
+           text TEXT NOT NULL,
+           UNIQUE (id, user_id, datetime, text)
+           );
+""")
+
+# Create indexs to facilitate quick select
+db.execute("CREATE INDEX IF NOT EXISTS idx_user_id On history(id);")
 
 
 # Fontion to read API key from text file
@@ -58,7 +83,7 @@ async def ocr_space_api(file, overlay=False, api_key='helloworld', language='eng
             # Raise an error for bad responses
             response.raise_for_status()
 
-            # Parse and return JSON responce
+            # Parse and return JSON response
             return response.json()
         
         # Error handling
@@ -73,10 +98,10 @@ async def ocr_space_api(file, overlay=False, api_key='helloworld', language='eng
             print(f"An unexpcted erro occurred: {e}")
             return {"error": "An unexpcted erro occurred. Please try again later."}
 
-# Extract text from responce
-def extract_text_from_api(main_key, text_key, json_responce):
-    if main_key in json_responce and len(json_responce[main_key]) > 0:
-        text = json_responce[main_key][0].get(text_key)
+# Extract text from response
+def extract_text_from_api(main_key, text_key, json_response):
+    if main_key in json_response and len(json_response[main_key]) > 0:
+        text = json_response[main_key][0].get(text_key)
         return text
     return None
 
@@ -95,17 +120,57 @@ pipeline = keras_ocr.pipeline.Pipeline()
 def check_format(filename):
     return filename.lower().endswith(tuple(ALLOWED_EXTENSIONS))
 
-# Custom erro handler for RequestEntityTooLarge (if file is more than 16 MP)
+# Custom error handler for RequestEntityTooLarge (if file is more than 16 MP)
 @app.errorhandler(RequestEntityTooLarge)
 def handle_large_file():
     return jsonify(
-        {"error": "File is too large. The maaximun file size is 16MB."}), 413
+        {"error": "File is too large. The maximum file size is 16MB."}), 413
 
 
 # Intex route
 @app.route("/")
 def index():
-    return render_template("index.html", ocr_models=OCR_MODELS)
+    """ using cookie to indientify user """
+    # Check for user_id cookie
+    user_id = request.cookies.get("user_id")
+
+    # If user_id cookie does not exist, generate a new one 
+    if not user_id:
+        # Generate a random Universally Unique Identifier (UUID)
+        user_id = str(uuid.uuid4())
+        # Save user id in the session
+        session["user_id"] = user_id
+        new_user = True
+    else:
+        new_user = False
+
+    """ TO DO REMOVE ALL USER DATA AFTER 2 DAYS """
+
+    # Query OCR results for this user 
+    ocr_results = db.execute("SELECT datetime, text FROM history WHERE user_id = ?;", user_id)
+
+    # Prepare response
+    response = make_response(render_template("index.html", ocr_models=OCR_MODELS, ocr_results=ocr_results))
+    
+
+    # Set user_id cookie if it's a new user or if the cookie doesn't exist
+    if new_user:
+        # Cookie expires after 2 days
+        expires = datetime.now(timezone.utc) + timedelta(days=2)
+        response.set_cookie(
+            "user_id", user_id, expires=expires, secure=True, httponly=True, samesite="Strict")
+
+    return response
+
+@app.route("/results")
+def get_results():
+    # Query OCR results for this user
+    user_id = session.get("user_id") 
+    ocr_results = db.execute("SELECT datetime, text FROM history WHERE user_id = ?;", user_id)
+    print("ocr_results", ocr_results)
+    """ Note: ocr_results is a dict key: datetime and text """
+    return jsonify(ocr_results)
+
 
 # submite file route
 @app.route("/submit", methods=["POST"])
@@ -114,6 +179,7 @@ async def submit():
     if request.method == "POST":
         file = request.files.get("file")
         ocr_model = request.form.get("ocrModel")
+        user_id = session.get("user_id")
 
         # Ensure that file exists
         if not file:
@@ -142,11 +208,13 @@ async def submit():
 
                     if ocr_result == "":
                         return jsonify({"ocr_result": "No text on the image"})
-            
+                # Save the result in Database
+                if user_id and ocr_result:
+                    db.execute("INSERT INTO history (user_id, text) VALUES (?, ?);", user_id, ocr_result)
                 return jsonify({"ocr_result": ocr_result})
             
             except:
-                return jsonify({"error": "Could not prosses the image."}), 400
+                return jsonify({"error": "Could not process the image."}), 400
         
         # If user chose API send image to ocr.space
         elif ocr_model == OCR_MODELS[1]:
@@ -163,7 +231,7 @@ async def submit():
                 text = extract_text_from_api(
                     main_key="ParsedResults", 
                     text_key="ParsedText",
-                    json_responce=ocr_result
+                    json_response=ocr_result
                     )
                 
                 # Ensure that the API detected text
@@ -171,10 +239,13 @@ async def submit():
                     return jsonify({"ocr_result": "No text on the image"})
                 
                 # Return text detected
+                # Save the result in Database
+                if user_id and text:
+                    db.execute("INSERT INTO history (user_id, text) VALUES (?, ?);", user_id, text)
                 return jsonify({"ocr_result": text})
 
             except:
-                jsonify({"error": "Could not prosses the image."}), 400
+                jsonify({"error": "Could not process the image."}), 400
     
     return jsonify({"error": "Invalid request method."}), 500
 
