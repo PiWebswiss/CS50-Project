@@ -18,14 +18,12 @@ window.addEventListener("scroll", () => {
 
 
 const uploadFile = document.getElementById("uploadFile");
+const dropArea = document.getElementById("dropArea");
 const fileInput = document.getElementById("fileInput");
-const dropArea = document.getElementById('drop-area');
 const userFeedBack = document.getElementById("userFeedBack");
 const animatedText = document.getElementById("animatedText");
 const btnCopy = document.getElementById("btnCopy");
-const tableBtnCopy = document.querySelectorAll(".table-copy-btn");
-
-
+const tBody = document.getElementById("tBody");
 
 
 // Initialize variable to save the current predicted text
@@ -94,18 +92,18 @@ function handleDrag(event) {
 
     // Visual feedback for drag-and-drop
     switch(event.type) {
-        case 'dragenter':
-        case 'dragover':
-            dropArea.classList.add('dragover');
+        case "dragenter":
+        case "dragover":
+            dropArea.classList.add("dragover");
             break;
-        case 'dragleave':
-        case 'drop':
-            dropArea.classList.remove('dragover');
+        case "dragleave":
+        case "drop":
+            dropArea.classList.remove("dragover");
             break;
     }
 
     // Handle file drop event
-    if (event.type === 'drop') {
+    if (event.type === "drop") {
         // Retrive files from the event
         const files = event.dataTransfer.files
         handleFileUpload(files);
@@ -116,14 +114,8 @@ function handleDrag(event) {
 function setupApplication() {
     // Add drag-and-drop functionality
     if (dropArea) {
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
             dropArea.addEventListener(eventName, handleDrag, false);
-        });
-
-        // Add click event to Open file selector
-        dropArea.addEventListener("click", () => {
-            // open the file selector
-            fileInput.click();
         });
 
         // Handeling file selection
@@ -134,6 +126,88 @@ function setupApplication() {
 }
 setupApplication()
 
+/* Setup all copy button in tha table */
+function setupTableCopyBtn() {
+    // Select all button
+    let tableBtnCopy = document.querySelectorAll(".table-copy-btn");
+  
+    tableBtnCopy.forEach(button => {
+        // Add click envent to each button
+        button.addEventListener("click", () => {
+            
+            // Get the ID of the text element to copy from the data-clipbord_id attribute
+            let textElementID = button.getAttribute("data-clipboard-id");
+            
+            // Get the text content of the element
+            let textToCopy = document.getElementById(textElementID).textContent;
+
+            // Copy the text to the clipboard
+            copyTextClipboard(textToCopy);
+        });
+    });
+
+}
+/* Function to add rows to the table */
+function addrows(data) {
+    // Clear existing rows
+    tBody.innerHTML = "";
+
+    // Iterate over the results and add rows to table
+    data.forEach((item, index) => {
+        let row = document.createElement("tr");
+        row.setAttribute("scope", "row");
+        
+        // Insert the data and time 
+        let datatimeCell = document.createElement("td");
+        datatimeCell.classList.add("hide-on-small");
+        datatimeCell.textContent = item.datetime;
+        row.appendChild(datatimeCell);
+
+        // Insert the text
+        let textCell = document.createElement("td");
+        textCell.id = `text-${index + 1}`;
+        textCell.classList.add("truncate-text");
+        textCell.textContent = item.text;
+        row.appendChild(textCell);
+
+        // Setup button to copy text
+        let buttonCell = document.createElement("td");
+        let button = document.createElement("button");
+        button.id = `copy-btn-${index + 1}`;
+        button.setAttribute("data-clipboard-id", `text-${index + 1}`);
+        button.classList.add("table-copy-btn");
+        button.textContent = "Copy text";
+        buttonCell.appendChild(button);
+        row.appendChild(buttonCell);
+
+        tBody.appendChild(row);
+    });
+
+    /* Setup copy text button */
+    setupTableCopyBtn();
+}
+
+
+/* Fetch OCR result */
+async function getResults() {
+    try {
+        let responce = await fetch("/results", {
+            method: "POST",
+        });
+        
+        // check responce and get the results
+        if (responce.ok) {
+            let results = await responce.json();
+            addrows(results);
+        }
+        
+    } catch (error) {
+        return;
+    }
+}
+getResults();
+
+
 // Function to handle file upload
 /* Using AJAX for submiting the form (code modified from GPT4) */
 async function handleFileUpload(files) {
@@ -143,7 +217,7 @@ async function handleFileUpload(files) {
         return;
     }
     // Select a single OCR Model
-    const ocrModel = document.querySelector('input[name="ocr_model"]:checked');
+    let ocrModel = document.querySelector('input[name="ocr_model"]:checked');
 
     // Ensure OCR Model is valide
     if (!ocrModel) {
@@ -152,10 +226,9 @@ async function handleFileUpload(files) {
     }
 
     // Construct a set of key/values dict
-    const formData = new FormData(uploadFile);
-    
-    // Append the values
-    formData.append("file", files[0]);
+    let formData = new FormData();
+    formData.append('file', files[0]);
+    // Append the OCR model 
     formData.append("ocrModel", ocrModel.value)
 
     // Show info message processing
@@ -169,8 +242,6 @@ async function handleFileUpload(files) {
             
         let result = await responce.json();
 
-        console.log(result) /* I got the message */
-
         // Ensure responce is valid
         if (!responce.ok) {
             showFeedback(result.error, "error");
@@ -181,6 +252,7 @@ async function handleFileUpload(files) {
         if ("ocr_result" in result) {
             typeText(result.ocr_result, animatedText);
             saveText = result.ocr_result;
+            getResults();
             showFeedback("Successfully perform OCR.", "success");
 
         // Clear file input after OCR is done
@@ -216,7 +288,7 @@ uploadFile.addEventListener("submit", async (event) => {
 
 /* Function to copy text inside the Clipboard  */
 function copyTextClipboard(text) {
-    // Replace '\n' by a space
+    // Replace "\n" by a space
     text = text.replace("\n", " ");
 
     navigator.clipboard.writeText(text)
@@ -239,21 +311,10 @@ btnCopy.addEventListener("click", () => {
     copyTextClipboard(orc_text);
 });
 
-/* Setup all copy button in tha table */
-tableBtnCopy.forEach(button => {
-    // Add click envent to each button
-    button.addEventListener("click", () => {
-        
-        // Get the ID of the text element to copy from the data-clipbord_id attribute
-        const textElementID = button.getAttribute("data-clipboard-id");
-        
-        // Get the text content of the element
-        const textToCopy = document.getElementById(textElementID).textContent;
 
-        // Copy the text to the clipboard
-        copyTextClipboard(textToCopy);
-    });
-});
+
+
+    
 
 
 /* TO DO  1. about section for OCR with TensorFlow and API OCR */
@@ -263,7 +324,7 @@ tableBtnCopy.forEach(button => {
 // Create a new Date object
 const date = new Date()
 // Get the footerDate element by its id
-const footerDate = document.getElementById('footerDate');
+const footerDate = document.getElementById("footerDate");
 // Populate the footerDate element with the current year
 footerDate.innerHTML = `Projet cours CS50x &copy; Harvard University - ${date.getFullYear()}`;
 
