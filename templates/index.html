@@ -81,7 +81,7 @@
                   <i class="fas fa-upload"></i>
                   <span>Click to Upload File</span>
               </label>
-              <p class="file-upload-text">or drag and drop your file here</p>
+              <div id="dropArea" class="file-upload-text">or drag and drop your file here</div>
           </div>
           <!-- Add default lang  -->
           <div class="radio-group">
@@ -115,17 +115,8 @@
               <th scope="col"></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="tBody">
             <!-- Rows will be added here -->
-            {% for item in ocr_results %}
-              <tr scop="row">
-                  <td class="hide-on-small">{{ item.datetime }}</td>
-                  <td id="text-{{ loop.index }}" class="truncate_text">{{ item.text }}</td>
-                  <td>
-                    <button id="copy-btn-{{ loop.index }}" data-clipboard-id="text-{{ loop.index }}" class="table-copy-btn">Copy text</button>
-                  </td>
-                </tr>
-            {% endfor %}
             </tbody>
           </table>
         </div>

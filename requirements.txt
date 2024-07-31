@@ -6,4 +6,4 @@ Flask-Session
 pillow
 numpy
 httpx
-psycopg2-binary
+APScheduler

@@ -27,7 +27,6 @@ Session(app)
 app.secret_key = secrets.token_hex(24)
 
 
-
 """ Note: I will perform OCR only in English  """ 
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg']
 OCR_MODELS = ["OCR with TensorFlow", "API OCR"]

@@ -263,7 +263,7 @@ body {
   font-size: 0.9rem;
 }
 
-.truncate_text {
+.truncate-text {
   max-width: 10rem;
   overflow: hidden;
   white-space: nowrap;
