@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template, make_response, session
 from werkzeug.exceptions import RequestEntityTooLarge
 from flask_session import Session
+from apscheduler.schedulers.background import BackgroundScheduler
 import secrets
 import keras_ocr
 from PIL import Image
@@ -17,13 +18,14 @@ app = Flask(__name__)
 # Limation file size to limit denial-of-service (DoS) attacks
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 
-# Generate secret key with 24-character hexadecimal string
-app.secret_key = secrets.token_hex(24)
-
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+# Generate secret key with 24-character hexadecimal string
+app.secret_key = secrets.token_hex(24)
+
 
 
 """ Note: I will perform OCR only in English  """ 
@@ -46,7 +48,7 @@ db.execute("""
 """)
 
 # Create indexs to facilitate quick select
-db.execute("CREATE INDEX IF NOT EXISTS idx_user_id On history(id);")
+db.execute("CREATE INDEX IF NOT EXISTS idx_user_id On history(user_id);")
 
 
 # Fontion to read API key from text file
@@ -120,6 +122,18 @@ pipeline = keras_ocr.pipeline.Pipeline()
 def check_format(filename):
     return filename.lower().endswith(tuple(ALLOWED_EXTENSIONS))
 
+# Configurate APScheduler
+scheduler = BackgroundScheduler()
+
+# Function to clean expired data in the SQL database
+def cleanup_expired_data():
+    two_days_ago = datetime.now(timezone.utc) - timedelta(days=2)
+    db.execute("DELECT FROM history WHERE datetime < ?;", two_days_ago)
+
+# Schedule cleanup to run every hour
+scheduler.add_job(func=cleanup_expired_data, trigger="interval", hours=1)
+scheduler.start()
+
 # Custom error handler for RequestEntityTooLarge (if file is more than 16 MP)
 @app.errorhandler(RequestEntityTooLarge)
 def handle_large_file():
@@ -133,6 +147,7 @@ def index():
     """ using cookie to indientify user """
     # Check for user_id cookie
     user_id = request.cookies.get("user_id")
+    print("USER_ID", user_id)
 
     # If user_id cookie does not exist, generate a new one 
     if not user_id:
@@ -143,14 +158,14 @@ def index():
         new_user = True
     else:
         new_user = False
+        # Save user id in the session
+        session["user_id"] = user_id
+    print("SESSTION USER_ID", session.get("user_id"))
 
     """ TO DO REMOVE ALL USER DATA AFTER 2 DAYS """
 
-    # Query OCR results for this user 
-    ocr_results = db.execute("SELECT datetime, text FROM history WHERE user_id = ?;", user_id)
-
     # Prepare response
-    response = make_response(render_template("index.html", ocr_models=OCR_MODELS, ocr_results=ocr_results))
+    response = make_response(render_template("index.html", ocr_models=OCR_MODELS))
     
 
     # Set user_id cookie if it's a new user or if the cookie doesn't exist
@@ -162,14 +177,20 @@ def index():
 
     return response
 
-@app.route("/results")
+@app.route("/results", methods=["POST"])
 def get_results():
-    # Query OCR results for this user
-    user_id = session.get("user_id") 
-    ocr_results = db.execute("SELECT datetime, text FROM history WHERE user_id = ?;", user_id)
-    print("ocr_results", ocr_results)
-    """ Note: ocr_results is a dict key: datetime and text """
-    return jsonify(ocr_results)
+    # Ensure it's a POST request
+    if request.method == "POST":
+        # Query OCR results for this user
+        user_id = session.get("user_id") 
+        if not user_id:
+            return jsonify({"info": "No user id."})
+        ocr_results = db.execute("SELECT datetime, text FROM history WHERE user_id = ?;", user_id)
+        print("ocr_results", ocr_results)
+        """ Note: ocr_results is a dict key: datetime and text """
+        return jsonify(ocr_results)
+    
+    return jsonify({"error": "Bad request. Use POST request"})
 
 
 # submite file route
@@ -249,5 +270,14 @@ async def submit():
     
     return jsonify({"error": "Invalid request method."}), 500
 
+if __name__ == "__name__":
+    # Rune cleanup immadiately on startup
+    cleanup_expired_data()
+    try:
+        # Start the Flask in debug model (remove for production use)
+        app.run(debug=True)
+    except (KeyboardInterrupt, SystemExit):
+        # Shut down APScheduler when the application is stopped
+        scheduler.shutdown()
 
-""" Run flask: flask --app app.py --debug run  """
+""" Run flask: flask run """
