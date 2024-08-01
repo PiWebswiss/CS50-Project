@@ -308,7 +308,7 @@ btnCopy.addEventListener("click", () => {
     }
 
     // Copy text inside the Clipboard
-    copyTextClipboard(orc_text);
+    copyTextClipboard(saveText);
 });
 
 

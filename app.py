@@ -18,6 +18,10 @@ app = Flask(__name__)
 # Limation file size to limit denial-of-service (DoS) attacks
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 
+""" nables automatic reloading  """
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -274,7 +278,7 @@ if __name__ == "__name__":
     cleanup_expired_data()
     try:
         # Start the Flask in debug model (remove for production use)
-        app.run(debug=True)
+        app.run(debug=True, use_reloader=True)
     except (KeyboardInterrupt, SystemExit):
         # Shut down APScheduler when the application is stopped
         scheduler.shutdown()

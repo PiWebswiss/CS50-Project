@@ -70,18 +70,39 @@
   </div>
   <!-- OCR model -->
   <div class="body-color">
+    <!-- Different model explained -->
+    <div class="box-flex">
+      <div class="box">
+        <!-- TO do change text  -->
+        <h4 class="center-text">OCR with TensorFlow</h4>
+        <p>You can use TensorFlow with the pre-trained OCR model <code>keras-ocr</code>. It consists of two models: one to localize the text in the image and the other to recognize the text.</p>
+        <p>Your images are processed by the server that performs OCR and sends you the predicted text. Your images are not stored or used for training the model; only the text is saved for 2 days to enable you to copy it. So, this approach is ideal for working with sensitive images.</p>
+        <p>The downside is that it is less precise and takes a bit longer to run. Currently, I am using a pre-trained model, but retraining the model for better results would be good, it's on my to-do list.</p>
+        <p>You can try it using the interface below. Be sure to select "OCR with TensorFlow" before submitting. I have chosen to enable auto-submit for faster responses, so users don't have to wait too long to see the results.</p>
+        <p>Link to <a href="https://keras-ocr.readthedocs.io/" target="_blank"><code>keras-ocr</code> documentation</a> and <a href="https://github.com/faustomorales/keras-ocr" target="_blank">GitHub repository</a>.</p>
+      </div>
+      <div class="box">
+        <h4 class="center-text">API OCR</h4>
+        <p>I use the OCR.space API to perform optical character recognition on images. It provides a good accuracy and is fast.</p>
+        <p>You can try it using the interface below. The API OCR is already preselected, give an image, and the text is yours.</p>
+        <p>I have enabled auto-submit for faster responses, so don't have to wait too long to see the results.</p>
+        <p>Please note that only optical character recognition in English is supported.</p>
+        <p>Link to <a href="https://ocr.space/ocrapi" target="_blank">ocr space</a></p>
+      </div>
+      
+    </div>
     <div class="box-flex">
       <!-- Upload File  uning AJAX-->
       <div class="box">
-        <h3 class="center-text text-big">Optical Character Recognition</h3>
+        <h3 class="center-text">Optical Character Recognition</h3>
         <form id="uploadFile" enctype="multipart/form-data">
-          <div class="upload-container">
+          <div id="dropArea" class="upload-container">
               <input type="file" id="fileInput" class="file-input" name="file" accept="image/*"/>
               <label for="fileInput" class="file-label">
                   <i class="fas fa-upload"></i>
                   <span>Click to Upload File</span>
               </label>
-              <div id="dropArea" class="file-upload-text">or drag and drop your file here</div>
+              <div class="file-upload-text">or drag and drop your file here</div>
           </div>
           <!-- Add default lang  -->
           <div class="radio-group">
@@ -122,11 +143,7 @@
         </div>
       </div>
     </div>
-  <!-- To do add a table with the result of ocr and the datatime -->
-
-  <br><br><br><br><br><br><br>
-  <br><br><br><br><br><br><br><br><br><br><br><br><br>
-  <br><br><br><br><br><br><br><br><br><br><br><br>
+  
 
 
   <footer>
