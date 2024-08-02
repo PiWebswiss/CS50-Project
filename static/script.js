@@ -24,6 +24,8 @@ const userFeedBack = document.getElementById("userFeedBack");
 const animatedText = document.getElementById("animatedText");
 const btnCopy = document.getElementById("btnCopy");
 const tBody = document.getElementById("tBody");
+const deleteBtn = document.getElementById("deleteBtn");
+const deletResponse = document.getElementById("deleteResponse");
 
 
 // Initialize variable to save the current predicted text
@@ -147,65 +149,78 @@ function setupTableCopyBtn() {
     });
 
 }
-/* Function to add rows to the table */
-function addrows(data) {
-    // Clear existing rows
-    tBody.innerHTML = "";
 
-    // Iterate over the results and add rows to table
-    data.forEach((item, index) => {
-        let row = document.createElement("tr");
-        row.setAttribute("scope", "row");
-        
-        // Insert the data and time 
-        let datatimeCell = document.createElement("td");
-        datatimeCell.classList.add("hide-on-small");
-        datatimeCell.textContent = item.datetime;
-        row.appendChild(datatimeCell);
-
-        // Insert the text
-        let textCell = document.createElement("td");
-        textCell.id = `text-${index + 1}`;
-        textCell.classList.add("truncate-text");
-        textCell.textContent = item.text;
-        row.appendChild(textCell);
-
-        // Setup button to copy text
-        let buttonCell = document.createElement("td");
-        let button = document.createElement("button");
-        button.id = `copy-btn-${index + 1}`;
-        button.setAttribute("data-clipboard-id", `text-${index + 1}`);
-        button.classList.add("table-copy-btn");
-        button.textContent = "Copy text";
-        buttonCell.appendChild(button);
-        row.appendChild(buttonCell);
-
-        tBody.appendChild(row);
-    });
-
-    /* Setup copy text button */
-    setupTableCopyBtn();
-}
-
-
-/* Fetch OCR result */
-async function getResults() {
+/* Function to send and resive response */
+async function fetchAndGet(path) {
+    if (!path) {
+        return null;
+    }
     try {
-        let responce = await fetch("/results", {
+        let response = await fetch(path, {
             method: "POST",
         });
         
-        // check responce and get the results
-        if (responce.ok) {
-            let results = await responce.json();
-            addrows(results);
+        // Check response and get the results
+        if (response.ok) {
+            let results = await response.json();
+            return results
         }
         
     } catch (error) {
-        return;
+        // Just return null
+        return null;
     }
 }
-getResults();
+
+
+/* Function to add rows to the table */
+async function showResultsTable() {
+    // Get the data
+    let data = await fetchAndGet(path="/results");
+
+    // Clear existing rows
+    tBody.innerHTML = "";
+
+    // Ensure we have data
+    if (data) {
+         // Iterate over the results and add rows to table
+        data.forEach((item, index) => {
+            let row = document.createElement("tr");
+            row.setAttribute("scope", "row");
+            
+            // Insert the data and time 
+            let datatimeCell = document.createElement("td");
+            datatimeCell.classList.add("hide-on-small");
+            datatimeCell.textContent = item.datetime;
+            row.appendChild(datatimeCell);
+
+            // Insert the text
+            let textCell = document.createElement("td");
+            textCell.id = `text-${index + 1}`;
+            textCell.classList.add("truncate-text");
+            textCell.textContent = item.text;
+            row.appendChild(textCell);
+
+            // Setup button to copy text
+            let buttonCell = document.createElement("td");
+            let button = document.createElement("button");
+            button.id = `copy-btn-${index + 1}`;
+            button.setAttribute("data-clipboard-id", `text-${index + 1}`);
+            button.classList.add("table-copy-btn");
+            button.textContent = "Copy text";
+            buttonCell.appendChild(button);
+            row.appendChild(buttonCell);
+
+            tBody.appendChild(row);
+        });
+        /* Setup copy text button */
+        setupTableCopyBtn();
+    }
+    
+}
+// Call function
+showResultsTable();
+
 
 
 // Function to handle file upload
@@ -235,15 +250,15 @@ async function handleFileUpload(files) {
     showFeedback("Processing your request...", "info");
 
     try {
-        let responce = await fetch("/submit", {
+        let response = await fetch("/submit", {
             method: "POST",
             body: formData,
         });
             
-        let result = await responce.json();
+        let result = await response.json();
 
-        // Ensure responce is valid
-        if (!responce.ok) {
+        // Ensure response is valid
+        if (!response.ok) {
             showFeedback(result.error, "error");
             return;
         }
@@ -252,7 +267,7 @@ async function handleFileUpload(files) {
         if ("ocr_result" in result) {
             typeText(result.ocr_result, animatedText);
             saveText = result.ocr_result;
-            getResults();
+            showResultsTable();
             showFeedback("Successfully perform OCR.", "success");
 
         // Clear file input after OCR is done
@@ -311,6 +326,43 @@ btnCopy.addEventListener("click", () => {
     copyTextClipboard(saveText);
 });
 
+/* Function to show a message for a specified duration */
+function showMessageFor(element, message, time=5000) {
+    // Display the message
+    element.innerText = message;
+    setTimeout(() => {
+        // Clear the message
+        element.innerText = "";
+    }, time);
+}
+
+// Setup button to remove cookie and user data from database
+deleteBtn.addEventListener("click", async () => {
+    // Clear any previous response 
+    deletResponse.innerText = ""
+    // Send to the server delete user
+    let result = await fetchAndGet(paht="/delete")
+    try {
+        // Message Handling: Determine which message to display
+        if ("message" in result) {
+            // Show message
+            showMessageFor(deletResponse, result.message);
+        
+        }else if ("info" in result) {
+            // Show info
+            showMessageFor(deletResponse, result.info);
+        } else {
+            // Show error
+            showMessageFor(deletResponse, result.error);
+        }
+    }
+    // Show error message
+    catch {
+        /* msg: Could not delete you data */
+        showMessageFor(deletResponse, "Could not delete you data.");
+    
+    };
+});
 
 
 

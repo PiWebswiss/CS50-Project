@@ -163,9 +163,6 @@ def index():
         new_user = False
         # Save user id in the session
         session["user_id"] = user_id
-    print("SESSTION USER_ID", session.get("user_id"))
-
-    """ TO DO REMOVE ALL USER DATA AFTER 2 DAYS """
 
     # Prepare response
     response = make_response(render_template("index.html", ocr_models=OCR_MODELS))
@@ -180,8 +177,39 @@ def index():
 
     return response
 
+# Route to delete user cookies and  user data stored
+@app.route("/delete", methods=["POST"])
+def delete():
+    # Ensure it's a POST request
+    if request.method == "POST":
+        # Get user id
+        user_id = session.get("user_id") 
+
+        if user_id == "" or not user_id:
+            return jsonify({"info": "Already remove user data."})
+
+        try:
+            # Remove user_id from session
+            session.pop("user_id", None)
+
+            # Remove all the data of this user
+            db.execute("DELETE FROM history WHERE user_id = ?", user_id)
+
+            # Prepare JSON response 
+            response = jsonify({"message": "Data and cookie deleted"})
+            # Delete user_id cookie by setting it to expire immediately
+            response.set_cookie("user_id", "", expires=0)
+        except:
+            response = jsonify({"error": "Could not remove data."})
+
+        return response
+
+    return jsonify({"error": "Bad request. Use POST request"}), 400
+
+
+# Route to get result
 @app.route("/results", methods=["POST"])
-def get_results():
+def results():
     # Ensure it's a POST request
     if request.method == "POST":
         # Query OCR results for this user
@@ -189,11 +217,9 @@ def get_results():
         if not user_id:
             return jsonify({"info": "No user id."})
         ocr_results = db.execute("SELECT datetime, text FROM history WHERE user_id = ?;", user_id)
-        print("ocr_results", ocr_results)
-        """ Note: ocr_results is a dict key: datetime and text """
         return jsonify(ocr_results)
     
-    return jsonify({"error": "Bad request. Use POST request"})
+    return jsonify({"error": "Bad request. Use POST request"}), 400
 
 
 # submite file route

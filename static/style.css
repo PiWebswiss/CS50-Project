@@ -5,6 +5,10 @@ body {
   color: #333;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 .logo {
   max-width: 3rem;
   border-radius: 2rem;
@@ -318,6 +322,10 @@ body {
   overflow: hidden; 
 }
 
+.delete-response {
+  margin: 0.2rem;
+  min-height: 0.5rem;
+}
 
 .footer-container {
   background-color: rgb(210, 206, 206);
