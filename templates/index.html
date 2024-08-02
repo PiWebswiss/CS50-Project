@@ -24,19 +24,13 @@
           <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+                <a class="nav-link active" aria-current="page" href="index.html">Perform OCR</a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link" href="tools.html">Tools</a>
+                  <a class="nav-link" href="tools.html">OCR history</a>
                 </li>
-                <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    More
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <li><a class="dropdown-item" href="brand.html">Brand</a></li>
-                    <li><a class="dropdown-item" href="extras.html">Extras</a></li>
-                </ul>
+                <li class="nav-item">
+                  <a class="nav-link" href="tools.html">OCR Models</a>
                 </li>
             </ul>
           </div>
@@ -57,9 +51,9 @@
       <p class="load text-muted">
         Or commonly called OCR is a technology that recognizes text within an image.
         There are different ways of achieving OCR one common approach is to use deep learning. 
-        Deep learning need a lot of resources and powerful computer and GPU to rune them.
+        I've implemented two deferent systemes to recognize text from images.
       </p>
-      <p>So I tried a different approach where real time OCR was the primary goal.</p>
+      <p>You can try optical character recognition using the interface below. For now only English is supported. I have enabled auto-submit for faster responses, so don't have to wait too long to see the results.</p>
       <div class="pb-4"></div>
       <!-- User feedback -->
       <div class="feedback-box">
@@ -70,27 +64,6 @@
   </div>
   <!-- OCR model -->
   <div class="body-color">
-    <!-- Different model explained -->
-    <div class="box-flex">
-      <div class="box">
-        <!-- TO do change text  -->
-        <h4 class="center-text">OCR with TensorFlow</h4>
-        <p>You can use TensorFlow with the pre-trained OCR model <code>keras-ocr</code>. It consists of two models: one to localize the text in the image and the other to recognize the text.</p>
-        <p>Your images are processed by the server that performs OCR and sends you the predicted text. Your images are not stored or used for training the model; only the text is saved for 2 days to enable you to copy it. So, this approach is ideal for working with sensitive images.</p>
-        <p>The downside is that it is less precise and takes a bit longer to run. Currently, I am using a pre-trained model, but retraining the model for better results would be good, it's on my to-do list.</p>
-        <p>You can try it using the interface below. Be sure to select "OCR with TensorFlow" before submitting. I have chosen to enable auto-submit for faster responses, so users don't have to wait too long to see the results.</p>
-        <p>Link to <a href="https://keras-ocr.readthedocs.io/" target="_blank"><code>keras-ocr</code> documentation</a> and <a href="https://github.com/faustomorales/keras-ocr" target="_blank">GitHub repository</a>.</p>
-      </div>
-      <div class="box">
-        <h4 class="center-text">API OCR</h4>
-        <p>I use the OCR.space API to perform optical character recognition on images. It provides a good accuracy and is fast.</p>
-        <p>You can try it using the interface below. The API OCR is already preselected, give an image, and the text is yours.</p>
-        <p>I have enabled auto-submit for faster responses, so don't have to wait too long to see the results.</p>
-        <p>Please note that only optical character recognition in English is supported.</p>
-        <p>Link to <a href="https://ocr.space/ocrapi" target="_blank">ocr space</a></p>
-      </div>
-      
-    </div>
     <div class="box-flex">
       <!-- Upload File  uning AJAX-->
       <div class="box">
@@ -104,7 +77,7 @@
               </label>
               <div class="file-upload-text">or drag and drop your file here</div>
           </div>
-          <!-- Add default lang  -->
+          <!-- button to choose a OCR model   -->
           <div class="radio-group">
             {% for ocr_model in ocr_models %}
               <input type="radio" class="radio-btn" name="ocr_model" value="{{ ocr_model }}"
@@ -127,6 +100,7 @@
     </div>
   <!-- Table with history -->
     <div class="container mt-3">
+      <h4 class="center-text">Your OCR history</h4>
       <div class="reponsive-table">
         <table id="dataTable" class="table ">
           <thead>
@@ -142,6 +116,58 @@
           </table>
         </div>
       </div>
+      <!-- Different model explained -->
+      <div class="box-flex">
+        <div class="box-ocr">
+          <!-- TO do change text  -->
+          <h4 class="center-text">OCR with TensorFlow</h4>
+          <ul>
+              <li>
+                  You can use TensorFlow with the pre-trained OCR model <code>keras-ocr</code>. It consists of two models: one to localize the text in the image and the other to recognize the text.
+              </li>
+              <li>
+                  Your images are process by the server that performs OCR and sends you the predicted text. Your images are not stored or used for training the model, only the text is saved for 2 days to enable you to copy it.
+              </li>
+              <li>
+                  The downside is that it is less precise and takes a bit longer to run. Currently, I am using a pre-trained model, but retraining the model for better results is on my to-do list.
+              </li>
+              <li>
+                  Be sure to select "OCR with TensorFlow" before submitting. 
+              </li>
+              <li>
+                  Link to <a href="https://keras-ocr.readthedocs.io/" target="_blank">keras-ocr documentation</a> and <a href="https://github.com/faustomorales/keras-ocr" target="_blank">GitHub repository</a>.
+              </li>
+          </ul>
+        </div>
+        <div class="box-ocr">
+          <h4 class="center-text">API OCR</h4>
+          <ul>
+            <li>
+                I use the <a href="https://ocr.space/ocrapi" target="_blank">OCR Space API</a> to perform optical character recognition on images. It provides good accuracy and is fast.
+            </li>
+            <li>
+                You have a rate limit of 500 requests per day per IP address.
+            </li>
+            <li>
+                OCR Space is a cloud-based optical character recognition (OCR) service that can convert images to text.
+            </li>
+            <li>
+                It supports multiple languages, but currently, only English is supported in my application.
+            </li>
+            <li>
+              I save the predicted text for 2 days to enable you to copy it.
+            </li>
+            <li>
+                It supports various image formats, including PNG, JPEG, and PDF, and offers excellent accuracy and speed.
+            </li>
+            <li>
+                Link to <a href="https://ocr.space/ocrapi" target="_blank">OCR Space API</a>
+            </li>
+        </ul>
+               
+        </div>
+    </div>
+
     </div>
   
 

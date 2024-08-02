@@ -44,6 +44,15 @@ body {
   text-align: center;
 }
 
+.box-ocr {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-grow: 1;
+  width: 100%;
+}
+
 @media (max-width: 600px) {
   .box-flex{
     flex-direction: column;
@@ -52,6 +61,7 @@ body {
     display: none;
   }
 }
+
 
 .container-drag {
   display: flex;
@@ -87,7 +97,7 @@ body {
   position: relative;
   border: 2px dashed #4A90E2;
   border-radius: 8px;
-  padding: 2rem;
+  padding: 3rem;
   margin: 2rem 0;
   background-color: #f9f9f9;
   cursor: pointer;
@@ -98,6 +108,13 @@ body {
   border-color: #000;
   background-color: #f0f0f0;
 }
+
+@media (min-width: 900px) {
+  .upload-container {
+    padding: 4rem;
+  }
+}
+
 
 /* File input styling */
 .file-input {
@@ -213,10 +230,12 @@ body {
 
 .radio-group {
   display: flex;
-  margin-left: 10px;
+  justify-content: center;
+  align-items: center;
   flex-direction: row;
   gap: 0.7rem;
 }
+
 
 .copy-text-box {
   display: flex;
