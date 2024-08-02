@@ -5,6 +5,12 @@ body {
   color: #333;
 }
 
+.logo {
+  max-width: 3rem;
+  border-radius: 2rem;
+  
+}
+
 .navbar-brand img {
   height: 40px;
 }
