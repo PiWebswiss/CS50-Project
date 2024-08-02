@@ -321,8 +321,13 @@ html {
   border-radius: 0.4rem; 
   overflow: hidden; 
 }
+.container-delete {
+  position: relative;
+  padding-bottom: 2rem;
+}
 
 .delete-response {
+  position: absolute;
   margin: 0.2rem;
   min-height: 0.5rem;
 }

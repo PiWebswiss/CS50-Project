@@ -150,7 +150,6 @@ def index():
     """ using cookie to indientify user """
     # Check for user_id cookie
     user_id = request.cookies.get("user_id")
-    print("USER_ID", user_id)
 
     # If user_id cookie does not exist, generate a new one 
     if not user_id:
