@@ -1,4 +1,3 @@
 __pycache__
 flask_session
-static/video/* 
-model
+static/video/archive
