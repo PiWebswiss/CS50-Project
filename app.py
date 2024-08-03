@@ -18,7 +18,7 @@ app = Flask(__name__)
 # Limation file size to limit denial-of-service (DoS) attacks
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 
-""" nables automatic reloading  """
+""" unable automatic html reloading  """
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 
@@ -122,9 +122,19 @@ def read_text(np_image):
 pipeline = keras_ocr.pipeline.Pipeline()
 """ https://github.com/faustomorales/keras-ocr?tab=readme-ov-file """
 
-# Check file format
-def check_format(filename):
-    return filename.lower().endswith(tuple(ALLOWED_EXTENSIONS))
+# Check file format and it's content (retrun Flase if not a image and True otherwise)
+def check_file(filename, file):
+    # Check if file is suported extension
+    if filename.lower().endswith(tuple(ALLOWED_EXTENSIONS)):
+        # Check the file content by attenting to open it with PIL
+        try:
+            with Image.open(file) as img:
+                # Verify the image integrity
+                img.verify()
+            return True
+        except (IOError, SyntaxError) as e:
+            return False
+    return False
 
 # Configurate APScheduler
 scheduler = BackgroundScheduler()
@@ -143,7 +153,6 @@ scheduler.start()
 def handle_large_file():
     return jsonify(
         {"error": "File is too large. The maximum file size is 16MB."}), 413
-
 
 # Intex route
 @app.route("/")
@@ -239,8 +248,8 @@ async def submit():
         if not ocr_model:
             return jsonify({"error": "Please chose a OCR model"}), 400
         
-        # Check file extension is a supported one
-        if not check_format(file.filename):
+        # Check file format and it's content 
+        if not check_file(filename=file.filename, file=file.stream):
             return jsonify({"error": f"The file format is not supported. Supported formats: {tuple(ALLOWED_EXTENSIONS)}"}), 400
         
         # If user chose server OCR then we perfome OCR using keras_ocr
