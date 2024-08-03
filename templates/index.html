@@ -12,6 +12,8 @@
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <title>OCR</title>
 </head>
+<body>
+
 <header>
     <!-- Bootstrap Navbar -->
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
@@ -27,7 +29,7 @@
               <a class="nav-link active" aria-current="page" href="#useModel">Perform OCR</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#dataTable">OCR history</a>
+                <a class="nav-link" href="#ocrHistory">OCR history</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#models">OCR Models</a>
@@ -44,136 +46,139 @@
         </video>
     </div>
 </header>
-<body>
-  <div class="jumbotron text-center container-section">
-    <div class="container pt-5 pb-5">
-      <h1 class="jumbotron-heading pb-2">Optical Character Recognition</h1>
-      <p class="load text-muted">
-        Or commonly called OCR is a technology that recognizes text within an image.
-        There are different ways of achieving OCR one common approach is to use deep learning. 
-        I've implemented two deferent systemes to recognize text from images.
-      </p>
-      <p>You can try optical character recognition using the interface below. For now only English is supported. I have enabled auto-submit for faster responses, so don't have to wait too long to see the results.</p>
-      <div class="pb-4"></div>
-      <!-- User feedback -->
-      <div class="feedback-box">
-        <p class="custom-feedback-box mb-4 text-center" id="userFeedBack"></p>
-      </div>
-      <div class="pb-4"></div>
-    </div>
-  </div>
-  <!-- OCR model -->
-  <div id="useModel" class="body-color">
-    <div class="box-flex">
-      <!-- Upload File  uning AJAX-->
-      <div class="box">
-        <h3 class="center-text">Optical Character Recognition</h3>
-        <form id="uploadFile" enctype="multipart/form-data">
-          <div id="dropArea" class="upload-container">
-              <input type="file" id="fileInput" class="file-input" name="file" accept="image/*"/>
-              <label for="fileInput" class="file-label">
-                  <i class="fas fa-upload"></i>
-                  <span>Click to Upload File</span>
-              </label>
-              <div class="file-upload-text">or drag and drop your file here</div>
-          </div>
-          <!-- button to choose a OCR model   -->
-          <div class="radio-group">
-            {% for ocr_model in ocr_models %}
-              <input type="radio" class="radio-btn" name="ocr_model" value="{{ ocr_model }}"
-              {% if ocr_model == "API OCR" %}checked{% endif %}>
-              {{ ocr_model }}
-            {% endfor %}
-          </div>
-          <div class="pt-3"></div>
-          <button type="submit" class="btn-primary">Submit</button>
-        </form>
-      </div>
-      <!-- text in the image -->
-      <div class="box">
-          <h3>Text</h3>
-          <div class="copy-text-box">
-            <p id="animatedText" class="animated-text text-muted"></p>
-          </div>
-          <button class="btn-copy" id="btnCopy">Copy text</button>
+
+  <main>
+    <div class="jumbotron text-center container-section">
+      <div class="container pt-5 pb-5">
+        <h1 class="jumbotron-heading pb-2">Optical Character Recognition</h1>
+        <p class="load text-muted">
+          Or commonly called OCR is a technology that recognizes text within an image.
+          There are different ways of achieving OCR one common approach is to use deep learning. 
+          I've implemented two deferent systemes to recognize text from images.
+        </p>
+        <p>You can try optical character recognition using the interface below. For now only English is supported. I have enabled auto-submit for faster responses, so don't have to wait too long to see the results.</p>
+        <div class="pb-4"></div>
+        <!-- User feedback -->
+        <div class="feedback-box">
+          <p class="custom-feedback-box mb-4 text-center" id="userFeedBack"></p>
+        </div>
+        <div class="pb-4"></div>
       </div>
     </div>
-  <!-- Table with history -->
-    <div class="container mt-3">
-      <h4 class="center-text">Your OCR history</h4>
-      <div class="reponsive-table">
-        <table id="dataTable" class="table ">
-          <thead>
-            <tr>
-              <th class="hide-on-small" scope="col">Date and time</th>
-              <th scope="col">Detected Text</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody id="tBody">
-            <!-- Rows will be added here -->
-            </tbody>
-          </table>
+    <!-- OCR model -->
+    <div id="useModel" class="body-color">
+      <div class="box-flex">
+        <!-- Upload File  uning AJAX-->
+        <div class="box">
+          <h3 class="center-text">Optical Character Recognition</h3>
+          <form id="uploadFile" enctype="multipart/form-data">
+            <div id="dropArea" class="upload-container">
+                <input type="file" id="fileInput" class="file-input" name="file" accept="image/*"/>
+                <label for="fileInput" class="file-label">
+                    <i class="fas fa-upload"></i>
+                    <span>Click to Upload File</span>
+                </label>
+                <div class="file-upload-text">or drag and drop your file here</div>
+            </div>
+            <!-- button to choose a OCR model   -->
+            <div class="radio-group">
+              {% for ocr_model in ocr_models %}
+                <input type="radio" class="radio-btn" name="ocr_model" value="{{ ocr_model }}"
+                {% if ocr_model == "API OCR" %}checked{% endif %}>
+                {{ ocr_model }}
+              {% endfor %}
+            </div>
+            <div class="pt-3"></div>
+            <button type="submit" class="btn-primary">Submit</button>
+          </form>
+        </div>
+        <!-- text in the image -->
+        <div class="box">
+            <h3 class="mb-4 text-muted">Text</h3>
+            <div class="copy-text-box">
+              <p id="animatedText" class="animated-text text-muted"></p>
+            </div>
+            <button class="btn-copy" id="btnCopy">Copy text</button>
         </div>
       </div>
-      <!-- Different model explained -->
-      <div id="models" class="box-flex">
-        <div class="box-ocr">
-          <!-- TO do change text  -->
-          <h4 class="center-text">OCR with TensorFlow</h4>
-          <ul>
-              <li class="m-1">
-                  You can use TensorFlow with the pre-trained OCR model <code>keras-ocr</code>. It consists of two models: one to localize the text in the image and the other to recognize the text.
-              </li>
-              <li class="m-1">
-                  Your images are process by the server that performs OCR and sends you the predicted text. The text is saved for 2 days to enable you to copy it.
-              </li>
-              <li class="m-1">
-                  The downside is that it is less precise and takes a bit longer to run. Currently, I am using a pre-trained model, but retraining the model for better results is on my to-do list.
-              </li>
-              <li class="m-1">
-                  To use this model be sure to select "OCR with TensorFlow" before submitting. 
-              </li>
-              <li class="m-1">
-                  Link to <a href="https://keras-ocr.readthedocs.io/" target="_blank">keras-ocr documentation</a> and <a href="https://github.com/faustomorales/keras-ocr" target="_blank">GitHub repository</a>.
-              </li>
-          </ul>
+    <!-- Table with history -->
+      <div class="container mt-5 mb-3">
+        <h4  id="ocrHistory" class="center-text">Your OCR history</h4>
+        <div class="reponsive-table">
+          <table id="dataTable" class="table ">
+            <thead>
+              <tr>
+                <th class="hide-on-small" scope="col">Date and time</th>
+                <th scope="col">Detected Text</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody id="tBody">
+              <!-- Rows will be added here -->
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="box-ocr">
-          <h4 class="center-text">API OCR</h4>
-          <ul>
-            <li class="m-1">
-                I use the <a href="https://ocr.space/ocrapi" target="_blank">OCR Space API</a> to perform optical character recognition on images. It provides good accuracy and is fast.
-            </li>
-            <li class="m-1">
-                You have a rate limit of 500 requests per day using their OCR Engine 2.
-            </li>
-            <li class="m-1">
-                OCR Space is a cloud-based OCR service that can convert images to text.
-            </li>
-            <li class="m-1">
-                It supports multiple languages, but currently, only English is supported in my application.
-            </li>
-            <li class="m-1">
-              I save the predicted text for 2 days to enable you to copy it.
-            </li>
-            <li class="m-1">
-                It supports various image formats, including PNG, JPEG, PDF and offers excellent accuracy.
-            </li>
-            <li>
-                Link to <a href="https://ocr.space/ocrapi" target="_blank">OCR Space API</a>
-            </li>
-        </ul>      
+        <!-- Different model explained -->
+        <div id="models" class="box-flex">
+          <div class="box-ocr">
+            <!-- TO do change text  -->
+            <h4 class="center-text">OCR with TensorFlow</h4>
+            <ul>
+                <li class="m-1">
+                    You can use TensorFlow with the pre-trained OCR model <code>keras-ocr</code>. It consists of two models: one to localize the text in the image and the other to recognize the text.
+                </li>
+                <li class="m-1">
+                    Your images are process by the server that performs OCR and sends you the predicted text. The text is saved for 2 days to enable you to copy it.
+                </li>
+                <li class="m-1">
+                    The downside is that it is less precise and takes a bit longer to run. Currently, I am using a pre-trained model, but retraining the model for better results is on my to-do list.
+                </li>
+                <li class="m-1">
+                    To use this model be sure to select "OCR with TensorFlow" before submitting. 
+                </li>
+                <li class="m-1">
+                    Link to <a href="https://keras-ocr.readthedocs.io/" target="_blank">keras-ocr documentation</a> and <a href="https://github.com/faustomorales/keras-ocr" target="_blank">GitHub repository</a>.
+                </li>
+            </ul>
+          </div>
+          <div class="box-ocr">
+            <h4 class="center-text">API OCR</h4>
+            <ul>
+              <li class="m-1">
+                  I use the <a href="https://ocr.space/ocrapi" target="_blank">OCR Space API</a> to perform optical character recognition on images. It provides good accuracy and is fast.
+              </li>
+              <li class="m-1">
+                  You have a rate limit of 500 requests per day using their OCR Engine 2.
+              </li>
+              <li class="m-1">
+                  OCR Space is a cloud-based OCR service that can convert images to text.
+              </li>
+              <li class="m-1">
+                  It supports multiple languages, but currently, only English is supported in my application.
+              </li>
+              <li class="m-1">
+                I save the predicted text for 2 days to enable you to copy it.
+              </li>
+              <li class="m-1">
+                  It supports various image formats, including PNG, JPEG, PDF and offers excellent accuracy.
+              </li>
+              <li>
+                  Link to <a href="https://ocr.space/ocrapi" target="_blank">OCR Space API</a>
+              </li>
+          </ul>      
+        </div>
       </div>
     </div>
-    </div>
+  </main>
+
   <footer>
     <div class="footer-container">
       <div class="footer-margin">
           <p><a href="#">Back to top</a></p>
           <p>I use cookies for authentication to display your previous predictions.</p>
-          <p>Your predicted text is saved for 2 days so that you can copy it. After that, your data and cookies are deleted.</p>
-          <p>I run a server-side cleaning schedule every hour.</p>
+          <p class="hide-on-small">Your predicted text is saved for 2 days so that you can copy it. After that, your data and cookies are deleted.</p>
+          <p class="hide-on-small">I run a server-side cleaning schedule every hour.</p>
           <p>If you wish, you can delete cookies and data now. Please note that reloading or revisiting the site will automatically set a new cookie.</p>
           <div class="container-delete">
             <button id="deleteBtn" class="btn btn-danger mb-2">Delete cookies and data</button>
@@ -183,5 +188,6 @@
       </div>
     </div>
   </footer>
+
 </body>
 </html>

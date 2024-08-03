@@ -15,94 +15,85 @@ import os
 # Configure application
 app = Flask(__name__)
 
-# Limation file size to limit denial-of-service (DoS) attacks
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
+# Limit file size to prevent denial-of-service (DoS) attacks
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB limit
 
-""" unable automatic html reloading  """
-app.config['TEMPLATES_AUTO_RELOAD'] = True
+# Enable automatic HTML reloading
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-
-# Configure session to use filesystem (instead of signed cookies)
+# Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Generate secret key with 24-character hexadecimal string
+# Generate secret key using a 24-character hexadecimal string
 app.secret_key = secrets.token_hex(24)
 
-
-""" Note: I will perform OCR only in English  """ 
-ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg']
+# Note: Perform OCR only in English for now
+ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg"]
 OCR_MODELS = ["OCR with TensorFlow", "API OCR"]
 
 # Configure CS50 Library to use SQLite database
 database_path = os.path.join("database", "ocr-results.db")
-db = SQL(f"sqlite:///{database_path}") 
+db = SQL(f"sqlite:///{database_path}")
 
 # Create table
 db.execute("""
     CREATE TABLE IF NOT EXISTS history (
-           id INTEGER PRIMARY KEY AUTOINCREMENT,
-           user_id INTEGER NOT NULL,
-           datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
-           text TEXT NOT NULL,
-           UNIQUE (id, user_id, datetime, text)
-           );
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
+        text TEXT NOT NULL,
+        UNIQUE (id, user_id, datetime, text)
+    );
 """)
 
-# Create indexs to facilitate quick select
-db.execute("CREATE INDEX IF NOT EXISTS idx_user_id On history(user_id);")
+# Create indexes to facilitate quick selection
+db.execute("CREATE INDEX IF NOT EXISTS idx_user_id ON history(user_id);")
 
-
-# Fontion to read API key from text file
+# Function to read API key from a text file
 def read_api_key(file_path):
     with open(file_path, "r") as file:
-        api_key = file.read()
+        api_key = file.read().strip()
         return api_key
-    
+
 # OCR.space API key
 API_KEY = read_api_key("API-and-config/API-key")
-""" API key OCR.space Online OCR (free) https://ocr.space/OCRAPI """
 
 # Async function to work with the OCR.space API
-# Modified code from https://github.com/Zaargh/ocr.space_code_example/blob/master/ocrspace_example.py
-async def ocr_space_api(file, overlay=False, api_key='helloworld', language='eng'):
-    """ OCR.space API request with 'FileStorage' object. """
-
-    payload = {'isOverlayRequired': overlay,
-               'apikey': api_key,
-               'language': language,
-               'OCREngine': 2,
-               }
-    files = {
-        'file': (file.filename, file.stream, file.mimetype)
+async def ocr_space_api(file, overlay=False, api_key="helloworld", language="eng"):
+    """ OCR.space API request with "FileStorage" object. """
+    payload = {
+        "isOverlayRequired": overlay,
+        "apikey": api_key,
+        "language": language,
+        "OCREngine": 2,
     }
-    # Uisng Python's async/await syntax with HTTP/2
+    files = {
+        "file": (file.filename, file.stream, file.mimetype)
+    }
+    # Using Python"s async/await syntax with HTTP/2
     async with httpx.AsyncClient(http2=True) as client:
         try:
             # Send request to OCR.space API
-            response = await client.post('https://api.ocr.space/parse/image',
-                            files=files,
-                            data=payload,
-                            )
-    
+            response = await client.post(
+                "https://api.ocr.space/parse/image",
+                files=files,
+                data=payload,
+            )
             # Raise an error for bad responses
             response.raise_for_status()
 
             # Parse and return JSON response
             return response.json()
-        
+
         # Error handling
         except httpx.HTTPStatusError as e:
-            # Log detailed error
-            #print(f"Request error occurred {e}")
-            return {"error": "An error occurred while processing the image"}
+            return {"error": "An error occurred while processing the image."}
         except httpx.RemoteProtocolError as e:
-            #print(f"HTTP error occurred: {e}")
-            return {"error": "A network error occured. Please try again later."}
+            return {"error": "A network error occurred. Please try again later."}
         except Exception as e:
-            #print(f"An unexpcted erro occurred: {e}")
-            return {"error": "An unexpcted erro occurred. Please try again later."}
+            return {"error": "An unexpected error occurred. Please try again later."}
 
 # Extract text from response
 def extract_text_from_api(main_key, text_key, json_response):
@@ -120,13 +111,12 @@ def read_text(np_image):
 
 # Initialize the pipeline for keras_ocr (OCR on server)
 pipeline = keras_ocr.pipeline.Pipeline()
-""" https://github.com/faustomorales/keras-ocr?tab=readme-ov-file """
 
-# Check file format and it's content (retrun Flase if not a image and True otherwise)
+# Check file format and its content (return False if not an image and True otherwise)
 def check_file(filename, file):
-    # Check if file is suported extension
+    # Check if file has a supported extension
     if filename.lower().endswith(tuple(ALLOWED_EXTENSIONS)):
-        # Check the file content by attenting to open it with PIL
+        # Check the file content by attempting to open it with PIL
         try:
             with Image.open(file) as img:
                 # Verify the image integrity
@@ -136,28 +126,28 @@ def check_file(filename, file):
             return False
     return False
 
-# Configurate APScheduler
-scheduler = BackgroundScheduler()
-
 # Function to clean expired data in the SQL database
 def cleanup_expired_data():
     two_days_ago = datetime.now(timezone.utc) - timedelta(days=2)
-    db.execute("DELECT FROM history WHERE datetime < ?;", two_days_ago)
+    db.execute("DELETE FROM history WHERE datetime < ?;", two_days_ago)
+
+# Configure APScheduler
+scheduler = BackgroundScheduler()
 
 # Schedule cleanup to run every hour
 scheduler.add_job(func=cleanup_expired_data, trigger="interval", hours=1)
 scheduler.start()
 
-# Custom error handler for RequestEntityTooLarge (if file is more than 16 MP)
+# Custom error handler for RequestEntityTooLarge (if file is more than 16 MB)
 @app.errorhandler(RequestEntityTooLarge)
-def handle_large_file():
+def handle_large_file(e):
     return jsonify(
         {"error": "File is too large. The maximum file size is 16MB."}), 413
 
-# Intex route
+# Index route
 @app.route("/")
 def index():
-    """ using cookie to indientify user """
+    """ Use cookie to identify user """
     # Check for user_id cookie
     user_id = request.cookies.get("user_id")
 
@@ -175,9 +165,8 @@ def index():
 
     # Prepare response
     response = make_response(render_template("index.html", ocr_models=OCR_MODELS))
-    
 
-    # Set user_id cookie if it's a new user or if the cookie doesn't exist
+    # Set user_id cookie if it"s a new user or if the cookie doesn"t exist
     if new_user:
         # Cookie expires after 2 days
         expires = datetime.now(timezone.utc) + timedelta(days=2)
@@ -186,16 +175,16 @@ def index():
 
     return response
 
-# Route to delete user cookies and  user data stored
+# Route to delete user cookies and user data stored
 @app.route("/delete", methods=["POST"])
 def delete():
-    # Ensure it's a POST request
+    # Ensure it"s a POST request
     if request.method == "POST":
         # Get user id
-        user_id = session.get("user_id") 
+        user_id = session.get("user_id")
 
-        if user_id == "" or not user_id:
-            return jsonify({"info": "Already remove user data."})
+        if not user_id:
+            return jsonify({"info": "Already removed user data."})
 
         try:
             # Remove user_id from session
@@ -208,33 +197,32 @@ def delete():
             response = jsonify({"message": "Data and cookie deleted"})
             # Delete user_id cookie by setting it to expire immediately
             response.set_cookie("user_id", "", expires=0)
-        except:
+        except Exception as e:
+            print(f"Error deleting data: {e}")
             response = jsonify({"error": "Could not remove data."})
 
         return response
 
     return jsonify({"error": "Bad request. Use POST request"}), 400
 
-
 # Route to get result
 @app.route("/results", methods=["POST"])
 def results():
-    # Ensure it's a POST request
+    # Ensure it"s a POST request
     if request.method == "POST":
         # Query OCR results for this user
-        user_id = session.get("user_id") 
+        user_id = session.get("user_id")
         if not user_id:
             return jsonify({"info": "No user id."})
         ocr_results = db.execute("SELECT datetime, text FROM history WHERE user_id = ?;", user_id)
         return jsonify(ocr_results)
-    
+
     return jsonify({"error": "Bad request. Use POST request"}), 400
 
-
-# submite file route
+# Submit file route
 @app.route("/submit", methods=["POST"])
 async def submit():
-    # Ensure it's a POST request
+    # Ensure it"s a POST request
     if request.method == "POST":
         file = request.files.get("file")
         ocr_model = request.form.get("ocrModel")
@@ -243,18 +231,17 @@ async def submit():
         # Ensure that file exists
         if not file:
             return jsonify({"error": "Please provide a file"}), 400
-        
-         # Ensure that ocr_model exists
+
+        # Ensure that ocr_model exists
         if not ocr_model:
-            return jsonify({"error": "Please chose a OCR model"}), 400
-        
-        # Check file format and it's content 
+            return jsonify({"error": "Please choose an OCR model"}), 400
+
+        # Check file format and its content 
         if not check_file(filename=file.filename, file=file.stream):
             return jsonify({"error": f"The file format is not supported. Supported formats: {tuple(ALLOWED_EXTENSIONS)}"}), 400
-        
-        # If user chose server OCR then we perfome OCR using keras_ocr
-        if ocr_model == OCR_MODELS[0]:
 
+        # If user chose server OCR, perform OCR using keras_ocr
+        if ocr_model == OCR_MODELS[0]:
             # Try to read image
             try:
                 with Image.open(file.stream) as img:
@@ -265,47 +252,48 @@ async def submit():
                     # Perform OCR
                     ocr_result = read_text(np_img)
 
-                    if ocr_result == "":
+                    if not ocr_result:
                         return jsonify({"ocr_result": "No text on the image"})
-                # Save the result in Database
+                    
+                # Save the result in the Database
                 if user_id and ocr_result:
                     db.execute("INSERT INTO history (user_id, text) VALUES (?, ?);", user_id, ocr_result)
                 return jsonify({"ocr_result": ocr_result})
-            
-            except:
+
+            except Exception as e:
+                print(f"Error processing image: {e}")
                 return jsonify({"error": "Could not process the image."}), 400
-        
-        # If user chose API send image to ocr.space
+
+        # If user chose API, send image to ocr.space
         elif ocr_model == OCR_MODELS[1]:
             try:
-            
-                # Perfrom OCR using OCR.space API with URL
+                # Perform OCR using OCR.space API with URL
                 ocr_result = await ocr_space_api(file)
 
                 # Check if OCR result contains an error
                 if "error" in ocr_result:
-                    return jsonify(ocr_space_api), 400
-               
+                    return jsonify(ocr_result), 400
+
                 # Get the text
                 text = extract_text_from_api(
-                    main_key="ParsedResults", 
+                    main_key="ParsedResults",
                     text_key="ParsedText",
                     json_response=ocr_result
-                    )
-                
+                )
+
                 # Ensure that the API detected text
                 if not text:
                     return jsonify({"ocr_result": "No text on the image"})
-                
-                # Return text detected
+
                 # Save the result in Database
                 if user_id and text:
                     db.execute("INSERT INTO history (user_id, text) VALUES (?, ?);", user_id, text)
                 return jsonify({"ocr_result": text})
 
-            except:
-                jsonify({"error": "Could not process the image."}), 400
-    
+            except Exception as e:
+                print(f"Error processing image with API: {e}")
+                return jsonify({"error": "Could not process the image."}), 400
+
     return jsonify({"error": "Invalid request method."}), 500
 
 # Handle application startup and shutdown
