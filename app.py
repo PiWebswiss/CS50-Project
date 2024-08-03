@@ -85,6 +85,7 @@ async def ocr_space_api(file, overlay=False, api_key='helloworld', language='eng
                             files=files,
                             data=payload,
                             )
+    
             # Raise an error for bad responses
             response.raise_for_status()
 
@@ -94,13 +95,13 @@ async def ocr_space_api(file, overlay=False, api_key='helloworld', language='eng
         # Error handling
         except httpx.HTTPStatusError as e:
             # Log detailed error
-            print(f"Request error occurred {e}")
+            #print(f"Request error occurred {e}")
             return {"error": "An error occurred while processing the image"}
         except httpx.RemoteProtocolError as e:
-            print(f"HTTP error occurred: {e}")
+            #print(f"HTTP error occurred: {e}")
             return {"error": "A network error occured. Please try again later."}
         except Exception as e:
-            print(f"An unexpcted erro occurred: {e}")
+            #print(f"An unexpcted erro occurred: {e}")
             return {"error": "An unexpcted erro occurred. Please try again later."}
 
 # Extract text from response
@@ -298,14 +299,13 @@ async def submit():
     
     return jsonify({"error": "Invalid request method."}), 500
 
-if __name__ == "__name__":
-    # Rune cleanup immadiately on startup
+# Handle application startup and shutdown
+if __name__ == "__main__":
+    # Run cleanup immediately on startup
     cleanup_expired_data()
     try:
-        # Start the Flask in debug model (remove for production use)
-        app.run(debug=True, use_reloader=True)
+        # Setup automatic reloading (only for development)
+        app.run(debug=False, use_reloader=True)
     except (KeyboardInterrupt, SystemExit):
         # Shut down APScheduler when the application is stopped
         scheduler.shutdown()
-
-""" Run flask: flask run """
