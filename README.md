@@ -3,10 +3,6 @@
 #### Video Demo: [video](URL-to-add)
 TODO
 #### Description:
-Here's a corrected version of your text with improvements in grammar, spelling, and clarity:
-
----
-
 My project is a web application for performing Optical Character Recognition (OCR) using different models. It provides a user interface to upload images, processes the images on the server side, and returns the predicted text. You can choose between two different methods to perform OCR, currently available only in English:
 
 1. **Using TensorFlow with `keras_ocr`**: The model runs on the server.
@@ -48,5 +44,3 @@ You can also use pip to install the necessary packages:
 ---
 
 **Note**: This README was corrected and styled using GPT-4.
-
----
