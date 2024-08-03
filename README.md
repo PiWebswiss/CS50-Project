@@ -5,7 +5,7 @@ TODO
 #### Description:
 My project is a web application for performing Optical Character Recognition (OCR) using different models. It provides a user interface to upload images, processes the images on the server side, and returns the predicted text. You can choose between two different methods to perform OCR, __currently available only in English__:
 
-1. **Using TensorFlow with `keras_ocr`**: The model runs on the server [keras-ocr documentation](https://keras-ocr.readthedocs.io/) and [GitHub repository](https://github.com/faustomorales/keras-ocr).
+1. **Using TensorFlow with `keras_ocr`**: It's an open-source OCR library that uses TensorFlow. The model runs on the server [keras-ocr documentation](https://keras-ocr.readthedocs.io/) and [GitHub repository](https://github.com/faustomorales/keras-ocr).
     - Currently, I am using a pre-trained model, which provides acceptable accuracy in most cases. It still requires additional training and fine-tuning to achieve better results, which is on my to-do list.
 
 2. **Using the OCR Space API**: This is a cloud-based OCR service that processes the image and returns the text with very good accuracy using their OCR Engine 2 [OCR Space API](https://ocr.space/ocrapi).
