@@ -129,7 +129,7 @@
                     You can use TensorFlow with the pre-trained OCR model <code>keras-ocr</code>. It consists of two models: one to localize the text in the image and the other to recognize the text.
                 </li>
                 <li class="m-1">
-                    Your images are process by the server that performs OCR and sends you the predicted text. The text is saved for 2 days to enable you to copy it.
+                    Your images are process by the server that performs OCR and sends you the predicted text. The text is saved for 2 hours to enable you to copy it.
                 </li>
                 <li class="m-1">
                     The downside is that it is less precise and takes a bit longer to run. Currently, I am using a pre-trained model, but retraining the model for better results is on my to-do list.
@@ -158,7 +158,7 @@
                   It supports multiple languages, but currently, only English is supported in my application.
               </li>
               <li class="m-1">
-                I save the predicted text for 2 days to enable you to copy it.
+                I save the predicted text for 2 hours to enable you to copy it.
               </li>
               <li class="m-1">
                   It supports various image formats, including PNG, JPEG, PDF and offers excellent accuracy.
@@ -177,8 +177,8 @@
       <div class="footer-margin">
           <p><a href="#">Back to top</a></p>
           <p>I use cookies for authentication to display your previous predictions.</p>
-          <p class="hide-on-small">Your predicted text is saved for 2 days so that you can copy it. After that, your data and cookies are deleted.</p>
-          <p class="hide-on-small">I run a server-side cleaning schedule every hour.</p>
+          <p class="hide-on-small">Your predicted text is saved for two hours so that you can copy it. After that, your data is deleted.</p>
+          <p class="hide-on-small">A server-side cleaning schedule runs every hour to remove expired data.</p>
           <p>If you wish, you can delete cookies and data now. Please note that reloading or revisiting the site will automatically set a new cookie.</p>
           <div class="container-delete">
             <button id="deleteBtn" class="btn btn-danger mb-2">Delete cookies and data</button>

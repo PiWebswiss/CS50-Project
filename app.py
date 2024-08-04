@@ -3,7 +3,7 @@ from werkzeug.exceptions import RequestEntityTooLarge
 from flask_session import Session
 from apscheduler.schedulers.background import BackgroundScheduler
 import secrets
-import keras_ocr
+import math, keras_ocr
 from PIL import Image
 import numpy as np
 import httpx
@@ -102,17 +102,120 @@ def extract_text_from_api(main_key, text_key, json_response):
         return text
     return None
 
-# Function to perform OCR
-def read_text(np_image):
-    model_result = pipeline.recognize([np_image])
-    # Concatenate the recognized text
-    text_result = " ".join([str(word) for word, _ in model_result[0]])
-    return text_result
+# Define a class for keras_ocr and make the text humain readable
+class Keras_OCR:
+    """ 
+    Fine-tuning the model for better accuracy is on my to-do list. 
+    For now, I have implemented a method to make the text more readable by defining a class specifically for this purpose. 
+    However, I am still getting unwanted results from Keras-OCR. 
+    The code below is a temporary solution to achieve acceptable results. 
+    Most of the code below is copied from https://github.com/shegocodes/keras-ocr/blob/main/Keras-OCR.ipynb.
+    """
+    # Initialize the pipeline for keras_ocr (OCR on server)
+    pipeline = keras_ocr.pipeline.Pipeline()
 
-# Initialize the pipeline for keras_ocr (OCR on server)
-pipeline = keras_ocr.pipeline.Pipeline()
+    def __init__(self, np_image):
+        self.np_image = np_image
 
-# Check file format and its content (return False if not an image and True otherwise)
+    def read_text(self):
+        """Recognize text from the numpy image."""
+        try:
+            # Perform OCR using the keras-ocr pipeline
+            prediction_groups = Keras_OCR.pipeline.recognize([self.np_image])
+            return prediction_groups
+        except Exception as e:
+            # Return None to indicate failure
+            return None
+        
+    # Code from https://github.com/shegocodes/keras-ocr/blob/main/Keras-OCR.ipynb
+    def get_distance(self, predictions):
+        """Calculate distances for text bounding boxes."""
+        x0, y0 = 0, 0  # Origin point for distance calculation
+
+        detections = []
+        for group in predictions:
+            try:
+                # Get center point of bounding box
+                top_left_x, top_left_y = group[1][0]
+                bottom_right_x, bottom_right_y = group[1][1]
+                center_x = (top_left_x + bottom_right_x) / 2
+                center_y = (top_left_y + bottom_right_y) / 2
+
+                # Calculate distances
+                distance_from_origin = math.dist([x0, y0], [center_x, center_y])
+                distance_y = center_y - y0
+
+                # Append results
+                detections.append({
+                    'text': group[0],
+                    'center_x': center_x,
+                    'center_y': center_y,
+                    'distance_from_origin': distance_from_origin,
+                    'distance_y': distance_y
+                })
+            except Exception as e:
+                continue
+
+        return detections
+
+    # Code inspired from https://github.com/shegocodes/keras-ocr/blob/main/Keras-OCR.ipynb
+    def distinguish_rows(self, lst, thresh=15):
+        """Group elements into rows based on vertical distance."""
+        
+        # Ensure lst is not empty
+        if not lst:
+            # Return None to indicate failure
+            return None 
+
+        sublists = []
+        current_row = [lst[0]]
+        for i in range(1, len(lst)):
+            # Compare the vertical distance between consecutive elements
+            if lst[i]['distance_y'] - lst[i - 1]['distance_y'] <= thresh:
+                current_row.append(lst[i])
+            else:
+                sublists.append(current_row)
+                current_row = [lst[i]]
+
+        # Add the last row to sublists
+        sublists.append(current_row)
+
+        return sublists
+
+    # Function to make the prediction more readable
+    def interprete_text(self):
+        """Extract and organize text into a readable format."""
+        prediction_groups = self.read_text()
+
+        # Ensure we have detected text 
+        if not prediction_groups:
+            # Return None to indicate failure
+            return None 
+
+        # Process the first group of predictions
+        predictions = self.get_distance(prediction_groups[0])
+        # Group predictions into rows
+        predictions = self.distinguish_rows(predictions, thresh=15)
+        # Ensure rows are detected
+        if not predictions:
+            # Return None to indicate failure
+            return None 
+        # Remove empty rows
+        predictions = list(filter(lambda x: x != [], predictions))
+
+        # Order text detections in human-readable format
+        ordered_preds = []
+        for row in predictions:
+            # Sort each row by distance from origin
+            row = sorted(row, key=lambda x: x['distance_from_origin'])
+            for each in row:
+                ordered_preds.append(each['text'])
+
+        # Join words into a sentence
+        return ' '.join(ordered_preds)
+
+
+# Function to check file format and its content (return False if not an image and True otherwise)
 def check_file(filename, file):
     # Check if file has a supported extension
     if filename.lower().endswith(tuple(ALLOWED_EXTENSIONS)):
@@ -128,7 +231,7 @@ def check_file(filename, file):
 
 # Function to clean expired data in the SQL database
 def cleanup_expired_data():
-    two_days_ago = datetime.now(timezone.utc) - timedelta(days=2)
+    two_days_ago = datetime.now(timezone.utc) - timedelta(hours=2)
     db.execute("DELETE FROM history WHERE datetime < ?;", two_days_ago)
 
 # Configure APScheduler
@@ -198,7 +301,6 @@ def delete():
             # Delete user_id cookie by setting it to expire immediately
             response.set_cookie("user_id", "", expires=0)
         except Exception as e:
-            print(f"Error deleting data: {e}")
             response = jsonify({"error": "Could not remove data."})
 
         return response
@@ -249,19 +351,20 @@ async def submit():
                     img = img.convert("RGB")
                     np_img = np.array(img)
 
+                    # Initailize the Keras_OCR
+                    ocr = Keras_OCR(np_img)
                     # Perform OCR
-                    ocr_result = read_text(np_img)
+                    ocr_result = ocr.interprete_text()
 
                     if not ocr_result:
                         return jsonify({"ocr_result": "No text on the image"})
-                    
+                
                 # Save the result in the Database
                 if user_id and ocr_result:
                     db.execute("INSERT INTO history (user_id, text) VALUES (?, ?);", user_id, ocr_result)
                 return jsonify({"ocr_result": ocr_result})
 
             except Exception as e:
-                print(f"Error processing image: {e}")
                 return jsonify({"error": "Could not process the image."}), 400
 
         # If user chose API, send image to ocr.space
@@ -291,7 +394,6 @@ async def submit():
                 return jsonify({"ocr_result": text})
 
             except Exception as e:
-                print(f"Error processing image with API: {e}")
                 return jsonify({"error": "Could not process the image."}), 400
 
     return jsonify({"error": "Invalid request method."}), 500

@@ -13,7 +13,7 @@ const deleteResponse = document.getElementById("deleteResponse");
 let saveText;
 
 // Text animation code modified from GPT4
-function typeText(text, element, maxLength = 300) {
+function typeText(text, element, maxLength = 290) {
     // Clear existing text 
     element.textContent = "";
     let index = 0;
@@ -308,7 +308,7 @@ btnCopy.addEventListener("click", () => {
 });
 
 // Function to show a message for a specified duration
-function showMessageFor(element, message, time = 5000) {
+function showMessageFor(element, message, time=5000) {
     // Display the message
     element.innerText = message;
     setTimeout(() => {
@@ -329,6 +329,8 @@ deleteBtn.addEventListener("click", async () => {
         if ("message" in result) {
             // Show message
             showMessageFor(deleteResponse, result.message);
+            // Upadate the table
+            showResultsTable();
 
         } else if ("info" in result) {
             // Show info

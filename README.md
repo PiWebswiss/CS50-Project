@@ -10,7 +10,7 @@ My project is a web application for performing Optical Character Recognition (OC
 
 2. **Using the OCR Space API**: This is a cloud-based OCR service that processes the image and returns the text with very good accuracy using their OCR Engine 2 [OCR Space API](https://ocr.space/ocrapi).
 
-I use cookies to identify users and show them the predicted text they have generated. Users can copy the predicted text for up to two days, after that, the user cookie is changed, and the data is removed from the database using a scheduler that runs every hour. This is done to clean up expired data and avoid keeping data for too long.
+I use cookies to identify users and show them the predicted text they have generated. Cookies are changed every two days. Users can copy the predicted text for up to two hours, and the data is removed from the database using a scheduler that runs every hour. This process cleans up expired data and prevents storing data for too long.
 
 #### Configure
 The `ocr_env.yaml` file contains a list of all packages and dependencies.
