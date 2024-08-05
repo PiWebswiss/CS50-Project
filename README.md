@@ -12,7 +12,7 @@ My project is a web application for performing Optical Character Recognition (OC
 1. **Using TensorFlow with `keras_ocr`**: This is an open-source OCR library that uses TensorFlow. The model runs on the server. For more details, see the [keras-ocr documentation](https://keras-ocr.readthedocs.io/) and the [GitHub repository](https://github.com/faustomorales/keras-ocr).
     - Currently, I am using a pre-trained model, which provides acceptable accuracy in most cases. However, it still requires additional training and fine-tuning to achieve better results, which is on my to-do list.
     
-    - To improve the results of `keras_ocr` and make the text more human-readable, I defined a class with methods to do just that. Most of the code in the class named `Keras_OCR` is copied from a GitHub repository published by Ellie Kuang. Here is a link to the [GitHub Jupyter Notebook](https://github.com/shegocodes/keras-ocr/blob/main/Keras-OCR.ipynb).
+    - To improve the results of `keras_ocr` and make the text more human-readable, I defined a class with methods to do just that. Most of the code in the class named `Keras_OCR` is copied from a GitHub repository published by shegocodes. Here is a link to the [GitHub Jupyter Notebook](https://github.com/shegocodes/keras-ocr/blob/main/Keras-OCR.ipynb).
     
     - I'm still getting unwanted results from `Keras_OCR`, so fine-tuning or even retraining it is still needed to get more accurate results. 
     
