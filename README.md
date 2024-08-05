@@ -1,22 +1,13 @@
-<<<<<<< HEAD
 # Web OCR Application
 
 #### Video Demo: 
-[Demo video](https://youtu.be/dpf1IfWXtRc)
-=======
-Here is the corrected version of your text, with grammar and spelling errors fixed while maintaining your writing style:
 
-# Web OCR Application
-
-#### Video Demo: [video](URL-to-add)
-
-TODO
->>>>>>> 5664ef550a0e187c8b311c09c19d2f9659bd91f0
+Youtube link: [Demo video](https://youtu.be/dpf1IfWXtRc)
 
 Due to the lack of a good microphone, I used the OpenAI API to read the text for me. Big thanks to the OpenAI API! :)
 
 #### Description:
-My project is a web application for performing Optical Character Recognition (OCR) using different models. It provides a user interface to upload images, processes the images on the server side, and returns the predicted text. You can choose between two different methods to perform OCR, **currently available only in English**:
+My project is a web application for performing Optical Character Recognition (OCR) using different methods. It provides a user interface to upload images, processes the images on the server side, and returns the predicted text. You can choose between two different methods to perform OCR, **currently available only in English**:
 
 1. **Using TensorFlow with `keras_ocr`**: This is an open-source OCR library that uses TensorFlow. The model runs on the server. For more details, see the [keras-ocr documentation](https://keras-ocr.readthedocs.io/) and the [GitHub repository](https://github.com/faustomorales/keras-ocr).
     - Currently, I am using a pre-trained model, which provides acceptable accuracy in most cases. However, it still requires additional training and fine-tuning to achieve better results, which is on my to-do list.
