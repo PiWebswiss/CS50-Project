@@ -82,7 +82,7 @@ You can also use pip to install the necessary packages:
 2. **Install dependencies**: Activate your environment and run the following command to install the required packages:
 
    ```bash
-   pip install tensorflow==2.12.0 keras-ocr seaborn jupyter opencv-python requests asyncio flask[async] Flask-Session httpx[http2] APScheduler
+   pip install tensorflow==2.12.0 keras-ocr seaborn jupyter opencv-python requests asyncio flask[async] Flask-Session httpx[http2] APScheduler cs50
    ```
 
 ---
