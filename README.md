@@ -1,7 +1,11 @@
+Here is your corrected text with grammar and spelling errors fixed:
+
 # Web OCR Application
 
 #### Video Demo: [video](URL-to-add)
 TODO
+
+Due to the lack of a good microphone, I used the OpenAI API to read the text for me. Big thanks to the OpenAI API! :)
 
 #### Description:
 My project is a web application for performing Optical Character Recognition (OCR) using different models. It provides a user interface to upload images, processes the images on the server side, and returns the predicted text. You can choose between two different methods to perform OCR, **currently available only in English**:
@@ -12,20 +16,19 @@ My project is a web application for performing Optical Character Recognition (OC
     - I'm still getting unwanted results from `Keras_OCR`, so fine-tuning or retraining is on my to-do list. I wanted to integrate a model to ensure that your images are processed on my server, guaranteeing that no images are saved and that the processing is secure. This avoids sending data to a cloud-based service, where we may not know how the images are processed. I only recommend using `OCR with TensorFlow` for tasks where security is a concern.
 
 2. **Using the OCR Space API**: This is a cloud-based OCR service that processes the image and returns the text with very good accuracy using their OCR Engine 2. You can find more information about the [OCR Space API](https://ocr.space/ocrapi).
-    - The OCR Space API is my default model as it is the most accurate and fast. 
-    - I send your image to the OCR Space API using HTTP/2 and Python `async/await`. The API responds with JSON, from which I extract the text and send it to the user using `jsonify`. 
+    - The OCR Space API is my default model as it is the most accurate and fast.
+    - My server receives and sends your image to the OCR Space API using HTTP/2. I use asynchronous operation `async/await` in Python so my code can pause execution while waiting for tasks to complete.
+    - The API responds with JSON, from which I extract the text and send back to the user using `jsonify`. 
 
-Images are submitted and data retrieved using AJAX `fetch` and `async/await` operations. The server sends back a JSON file containing the predicted text or, if an error occurs, an error message. Alongside the message, the server responds with a status: `success`, `error`, or `info`. These statuses are used to send feedback to the user, often in conjunction with JavaScript, to display messages without reloading the entire page and only updating the desired elements.
+On the client side, images are submitted and the data retrieved using AJAX `fetch` and asynchronous operation `async/await`. The server sends back a JSON file containing the predicted text or, if an error occurs, an error message. Alongside the message, the server responds with a JSON file where the keys are one of the following: `success`, `error`, or `info`. These messages are used to send feedback to the user in conjunction with JavaScript, to display messages without reloading the entire page and only updating the desired elements.
 
-After the server receives the image, I check if it is valid by verifying the file format. Currently, only `png`, `jpg`, and `jpeg` are supported. The file's content is verified using Pillow's `verify` function to ensure the integrity of the image.
+After the server receives the image, it checks if it is valid by verifying the file format. **Currently, only `png`, `jpg`, and `jpeg` are supported.** The file's content is verified using Pillow's `verify` function to ensure the integrity of the image.
 
-After checking for errors, I send the image to the appropriate model chosen by the user.
+After checking for errors, I send the image to the appropriate model chosen by the user. Then I save the predicted text in a database `ocr-results.db` with the date, time, and `user_id`.
 
 Users can copy the predicted text for up to two hours using the table history. After expiration, the data is removed from the database using a scheduler that runs every hour. This process cleans up expired data and prevents storing data for too long.
 
 I use cookies to identify users and show them the predicted text alongside the date and time they used the application for optical character recognition. Managing cookies is essential, so they are generated using a random universally unique identifier (UUID) with the function `uuid.uuid4()`. They are then stored on the client side and have a lifetime of two days before being regenerated and reset.
-
-Here is the corrected text, with grammar and spelling errors fixed and improved clarity:
 
 ### Files in the Repository
 
@@ -43,7 +46,7 @@ Below is a guide on how to configure your environment using Miniconda or Python.
 #### Configure
 The `ocr_env.yaml` file contains a list of all packages and dependencies.
 
->Note: The environment has only been tested on Windows machines.
+> Note: The environment has only been tested on Windows machines.
 
 To recreate the Conda environment named `ocr`:
 
@@ -54,6 +57,7 @@ To recreate the Conda environment named `ocr`:
     ```sh
     conda env create -f ocr_env.yaml
     ```
+
 ---
 
 You can also use pip to install the necessary packages:
@@ -69,3 +73,9 @@ You can also use pip to install the necessary packages:
    ```bash
    pip install tensorflow==2.12.0 keras-ocr seaborn jupyter opencv-python requests asyncio flask[async] Flask-Session httpx[http2] APScheduler
    ```
+
+---
+
+**Note**:
+- This README was text-corrected using GPT-4.
+- The logo you see when viewing my `index.html` page was generated with DALL·E3.
