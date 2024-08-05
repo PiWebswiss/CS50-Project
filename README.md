@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+# Web OCR Application
+
+#### Video Demo: 
+[Demo video](https://youtu.be/dpf1IfWXtRc)
+=======
 Here is the corrected version of your text, with grammar and spelling errors fixed while maintaining your writing style:
 
 # Web OCR Application
@@ -5,6 +11,7 @@ Here is the corrected version of your text, with grammar and spelling errors fix
 #### Video Demo: [video](URL-to-add)
 
 TODO
+>>>>>>> 5664ef550a0e187c8b311c09c19d2f9659bd91f0
 
 Due to the lack of a good microphone, I used the OpenAI API to read the text for me. Big thanks to the OpenAI API! :)
 
@@ -45,6 +52,7 @@ User a any time can delete your cookies and all data stored by using the red but
 ### Files in the Repository
 
 - **`API-and-config`**: This directory contains the `ocr_env.yaml` file and my OCR Space API key.
+- **``CS50-video-project``**: This directory contains all my video presentation.
 - **`database`**: This directory contains the SQLite3 database.
 - **`static`**: This directory contains all images, videos, stylesheets, and JavaScript files.
 - **`templates`**: This directory contains `index.html`. I have condensed my project into a single HTML page.
