@@ -2,22 +2,50 @@
 
 #### Video Demo: [video](URL-to-add)
 TODO
+
 #### Description:
-My project is a web application for performing Optical Character Recognition (OCR) using different models. It provides a user interface to upload images, processes the images on the server side, and returns the predicted text. You can choose between two different methods to perform OCR, __currently available only in English__:
+My project is a web application for performing Optical Character Recognition (OCR) using different models. It provides a user interface to upload images, processes the images on the server side, and returns the predicted text. You can choose between two different methods to perform OCR, **currently available only in English**:
 
-1. **Using TensorFlow with `keras_ocr`**: It's an open-source OCR library that uses TensorFlow. The model runs on the server [keras-ocr documentation](https://keras-ocr.readthedocs.io/) and [GitHub repository](https://github.com/faustomorales/keras-ocr).
-    - Currently, I am using a pre-trained model, which provides acceptable accuracy in most cases. It still requires additional training and fine-tuning to achieve better results, which is on my to-do list.
+1. **Using TensorFlow with `keras_ocr`**: This is an open-source OCR library that uses TensorFlow. The model runs on the server. For more details, see the [keras-ocr documentation](https://keras-ocr.readthedocs.io/) and the [GitHub repository](https://github.com/faustomorales/keras-ocr).
+    - Currently, I am using a pre-trained model, which provides acceptable accuracy in most cases. However, it still requires additional training and fine-tuning to achieve better results, which is on my to-do list.
+    - To improve the results of `keras_ocr` and make the text more human-readable, I defined a class with methods to do just that. Most of the code in the class named `Keras_OCR` is copied from a GitHub repository published by Ellie Kuang. Here is a link to the [GitHub Jupyter Notebook](https://github.com/shegocodes/keras-ocr/blob/main/Keras-OCR.ipynb).
+    - I'm still getting unwanted results from `Keras_OCR`, so fine-tuning or retraining is on my to-do list. I wanted to integrate a model to ensure that your images are processed on my server, guaranteeing that no images are saved and that the processing is secure. This avoids sending data to a cloud-based service, where we may not know how the images are processed. I only recommend using `OCR with TensorFlow` for tasks where security is a concern.
 
-2. **Using the OCR Space API**: This is a cloud-based OCR service that processes the image and returns the text with very good accuracy using their OCR Engine 2 [OCR Space API](https://ocr.space/ocrapi).
+2. **Using the OCR Space API**: This is a cloud-based OCR service that processes the image and returns the text with very good accuracy using their OCR Engine 2. You can find more information about the [OCR Space API](https://ocr.space/ocrapi).
+    - The OCR Space API is my default model as it is the most accurate and fast. 
+    - I send your image to the OCR Space API using HTTP/2 and Python `async/await`. The API responds with JSON, from which I extract the text and send it to the user using `jsonify`. 
 
-I use cookies to identify users and show them the predicted text they have generated. Cookies are changed every two days. Users can copy the predicted text for up to two hours, and the data is removed from the database using a scheduler that runs every hour. This process cleans up expired data and prevents storing data for too long.
+Images are submitted and data retrieved using AJAX `fetch` and `async/await` operations. The server sends back a JSON file containing the predicted text or, if an error occurs, an error message. Alongside the message, the server responds with a status: `success`, `error`, or `info`. These statuses are used to send feedback to the user, often in conjunction with JavaScript, to display messages without reloading the entire page and only updating the desired elements.
+
+After the server receives the image, I check if it is valid by verifying the file format. Currently, only `png`, `jpg`, and `jpeg` are supported. The file's content is verified using Pillow's `verify` function to ensure the integrity of the image.
+
+After checking for errors, I send the image to the appropriate model chosen by the user.
+
+Users can copy the predicted text for up to two hours using the table history. After expiration, the data is removed from the database using a scheduler that runs every hour. This process cleans up expired data and prevents storing data for too long.
+
+I use cookies to identify users and show them the predicted text alongside the date and time they used the application for optical character recognition. Managing cookies is essential, so they are generated using a random universally unique identifier (UUID) with the function `uuid.uuid4()`. They are then stored on the client side and have a lifetime of two days before being regenerated and reset.
+
+Here is the corrected text, with grammar and spelling errors fixed and improved clarity:
+
+### Files in the Repository
+
+- **`API-and-config`**: This directory contains the `ocr_env.yaml` file and my OCR Space API key.
+- **`database`**: This directory contains the SQLite3 database.
+- **`static`**: This directory contains all images, videos, stylesheets, and JavaScript files.
+- **`templates`**: This directory contains `index.html`. I have condensed my project into a single HTML page.
+- **`test-images`**: This directory contains some images to test my model.
+- **`.gitignore`**: This file is used to remove unwanted files from commits.
+- **`app.py`**: This file is my Flask server.
+- **`requirements.txt`**: This file lists all the requirements necessary for the application to run.
+
+Below is a guide on how to configure your environment using Miniconda or Python.
 
 #### Configure
 The `ocr_env.yaml` file contains a list of all packages and dependencies.
 
->Note: Environment only tested on Windows machines.
+>Note: The environment has only been tested on Windows machines.
 
-To recreate the Conda environment named ``ocr``:
+To recreate the Conda environment named `ocr`:
 
 1. Install Miniconda using the [Miniconda installer](https://docs.anaconda.com/miniconda/).
 2. Open the Miniconda Command Line.
@@ -30,7 +58,7 @@ To recreate the Conda environment named ``ocr``:
 
 You can also use pip to install the necessary packages:
 
-1. **Ensure you have Python 3.11**: You can use the [Miniconda installer](https://docs.anaconda.com/miniconda/) and create a virtual environment with the following command or simply install Python 3.11 directly:
+1. **Ensure you have Python 3.11**: You can use the [Miniconda installer](https://docs.anaconda.com/miniconda/) to create a virtual environment with the following command or simply install Python 3.11 directly:
 
    ```bash
    conda create -n ocr python=3.11
@@ -41,6 +69,3 @@ You can also use pip to install the necessary packages:
    ```bash
    pip install tensorflow==2.12.0 keras-ocr seaborn jupyter opencv-python requests asyncio flask[async] Flask-Session httpx[http2] APScheduler
    ```
----
-
-**Note**: This README was corrected and styled using GPT-4.

@@ -158,7 +158,7 @@ class Keras_OCR:
 
         return detections
 
-    # Code inspired from https://github.com/shegocodes/keras-ocr/blob/main/Keras-OCR.ipynb
+    # Code inspired and modified from https://github.com/shegocodes/keras-ocr/blob/main/Keras-OCR.ipynb
     def distinguish_rows(self, lst, thresh=15):
         """Group elements into rows based on vertical distance."""
         
@@ -219,7 +219,7 @@ class Keras_OCR:
 def check_file(filename, file):
     # Check if file has a supported extension
     if filename.lower().endswith(tuple(ALLOWED_EXTENSIONS)):
-        # Check the file content by attempting to open it with PIL
+        # Check the file content with PIL
         try:
             with Image.open(file) as img:
                 # Verify the image integrity

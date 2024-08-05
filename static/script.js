@@ -129,16 +129,15 @@ function setupTableCopyBtn() {
             copyTextClipboard(textToCopy);
         });
     });
-
 }
 
 // Function to send and receive response
-async function fetchAndGet(path) {
-    if (!path) {
+async function fetchDataViaPost(route) {
+    if (!route) {
         return null;
     }
     try {
-        let response = await fetch(path, {
+        let response = await fetch(route, {
             method: "POST",
         });
 
@@ -157,7 +156,7 @@ async function fetchAndGet(path) {
 // Function to add rows to the table
 async function showResultsTable() {
     // Get the data
-    let data = await fetchAndGet(path = "/results");
+    let data = await fetchDataViaPost(path = "/results");
 
     // Clear existing rows
     tBody.innerHTML = "";
@@ -197,7 +196,6 @@ async function showResultsTable() {
         // Setup copy text button
         setupTableCopyBtn();
     }
-
 }
 
 // Call function
@@ -323,7 +321,7 @@ deleteBtn.addEventListener("click", async () => {
     deleteResponse.innerText = "";
 
     // Send to the server to delete user
-    let result = await fetchAndGet(path = "/delete");
+    let result = await fetchDataViaPost(path = "/delete");
     try {
         // Message Handling: Determine which message to display
         if ("message" in result) {
