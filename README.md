@@ -1,7 +1,3 @@
-Here is the corrected and polished version of your text:
-
----
-
 # Web OCR Application
 
 #### Video Demo
@@ -44,7 +40,7 @@ Users can delete cookies and all stored data at any time by clicking the red but
 ### Files in the Repository
 
 - **`API-and-config`**: This directory contains the `ocr_env.yaml` file and my OCR Space API key.
-- **`CS50-video-project`**: This directory contains all my video presentation files.
+- **`CS50-video-project`**: This directory contains my video notes and some files used to make the video.
 - **`database`**: This directory contains the SQLite3 database.
 - **`static`**: This directory contains all images, videos, stylesheets, and JavaScript files.
 - **`templates`**: This directory contains `index.html`. I have condensed my project into a single HTML page.
