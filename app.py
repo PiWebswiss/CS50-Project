@@ -61,7 +61,7 @@ def read_api_key(file_path):
 API_KEY = read_api_key("API-and-config/API-key")
 
 # Async function to work with the OCR.space API
-async def ocr_space_api(file, overlay=False, api_key="helloworld", language="eng"):
+async def ocr_space_api(file, overlay=False, api_key=API_KEY, language="eng"):
     """ OCR.space API request with "FileStorage" object. """
     payload = {
         "isOverlayRequired": overlay,
