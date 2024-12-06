@@ -231,8 +231,8 @@ def check_file(filename, file):
 
 # Function to clean expired data in the SQL database
 def cleanup_expired_data():
-    two_days_ago = datetime.now(timezone.utc) - timedelta(hours=2)
-    db.execute("DELETE FROM history WHERE datetime < ?;", two_days_ago)
+    two_hours_ago = datetime.now(timezone.utc) - timedelta(hours=2)
+    db.execute("DELETE FROM history WHERE datetime < ?;", two_hours_ago)
 
 # Configure APScheduler
 scheduler = BackgroundScheduler()
